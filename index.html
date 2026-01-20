@@ -2,38 +2,53 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mapa Interativo das Placas Tectónicas</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; overflow-x: hidden; background: #0a1628; font-family: system-ui, sans-serif; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; 
+            overflow-x: hidden; 
+            background: #0a1628; 
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
         
+        /* Main Map View */
         .map-container {
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
             background: radial-gradient(ellipse at center, #1a3a5c 0%, #0a1628 100%);
+            transition: opacity 0.5s;
+            position: relative;
         }
         
+        .map-container.hidden { display: none; }
+        
         #worldMap {
-            width: 95%;
-            height: 95%;
+            width: 100%;
+            height: 100%;
             max-width: 1400px;
+            touch-action: pan-x pan-y;
         }
         
         .ocean { fill: #1b4965; }
         
         .land {
-            fill: #3d6b4f;
-            stroke: #2a4d38;
+            fill: #2d5a35;
+            stroke: #1a3d20;
             stroke-width: 0.3;
             transition: transform 1.5s ease-in-out, fill 0.3s;
         }
         
-        .land:hover { fill: #4a8c5f; }
+        @media (hover: hover) {
+            .land:hover { fill: #3d7a45; }
+        }
 
         .plate-boundary {
             fill: none;
@@ -42,53 +57,103 @@
             pointer-events: none;
         }
         
-        .plate-boundary.divergent { stroke: #ff6b35; stroke-width: 2; }
-        .plate-boundary.convergent { stroke: #e63946; stroke-width: 2; }
-        .plate-boundary.transform { stroke: #ffd60a; stroke-dasharray: 6,3; stroke-width: 1.5; }
+        .plate-boundary.divergent { 
+            stroke: #ff6b35; 
+            stroke-width: 2;
+            filter: drop-shadow(0 0 2px #ff6b35);
+        }
+        .plate-boundary.convergent { 
+            stroke: #e63946; 
+            stroke-width: 2;
+            filter: drop-shadow(0 0 2px #e63946);
+        }
+        .plate-boundary.transform { 
+            stroke: #ffd60a; 
+            stroke-dasharray: 6,3; 
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 2px #ffd60a);
+        }
         
         .plate-label {
-            font-size: 8px;
-            font-weight: 600;
+            font-size: 7px;
+            font-weight: 700;
             fill: #ffffff;
             text-anchor: middle;
             pointer-events: none;
             opacity: 1;
             transition: opacity 0.3s;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.9));
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .plate-label.hidden { opacity: 0; }
         
-        .fossil-region { opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+        .fossil-region {
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        
         .fossil-region.visible { opacity: 0.6; }
         
+        /* Mobile Menu Toggle Button */
+        .menu-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.5);
+            z-index: 200;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        .menu-toggle.open {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        /* Control Panel */
         .control-panel {
             position: fixed;
             top: 20px;
             right: 20px;
             background: rgba(10, 22, 40, 0.95);
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             color: white;
             z-index: 100;
             border: 1px solid rgba(255,255,255,0.15);
             backdrop-filter: blur(12px);
-            width: 280px;
-            max-height: 90vh;
+            -webkit-backdrop-filter: blur(12px);
+            width: 260px;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
         
         .control-panel h2 {
-            margin: 0 0 16px 0;
-            font-size: 16px;
+            margin: 0 0 12px 0;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 12px;
+            padding-bottom: 10px;
         }
         
         .toggle-btn {
@@ -96,21 +161,31 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px 12px;
-            margin: 6px 0;
+            margin: 5px 0;
             background: rgba(255,255,255,0.05);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 13px;
+            font-size: 12px;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
-        .toggle-btn:hover { background: rgba(255,255,255,0.12); }
+        .toggle-btn:active { 
+            background: rgba(255,255,255,0.15);
+        }
+        
+        @media (hover: hover) {
+            .toggle-btn:hover { 
+                background: rgba(255,255,255,0.12);
+            }
+        }
         
         .toggle-switch {
-            width: 40px;
-            height: 22px;
+            width: 36px;
+            height: 20px;
             background: #3a4a5a;
-            border-radius: 11px;
+            border-radius: 10px;
             position: relative;
             transition: background 0.3s;
             flex-shrink: 0;
@@ -121,8 +196,8 @@
         .toggle-switch::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: white;
             border-radius: 50%;
             top: 3px;
@@ -131,18 +206,54 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
-        .toggle-switch.active::after { transform: translateX(18px); }
+        .toggle-switch.active::after { transform: translateX(16px); }
         
-        .legend { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .legend-item { display: flex; align-items: center; margin: 5px 0; font-size: 11px; color: #b0c4d4; }
-        .legend-color { width: 20px; height: 3px; margin-right: 8px; border-radius: 2px; }
-        .legend-color.dashed { background: repeating-linear-gradient(90deg, #ffd60a 0, #ffd60a 5px, transparent 5px, transparent 8px); }
+        .legend {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
         
-        .time-control { padding: 12px 0; display: none; }
-        .time-display { text-align: center; font-size: 13px; color: #8fa8bc; margin-bottom: 10px; font-weight: 600; }
-        .time-slider { width: 100%; height: 6px; accent-color: #22c55e; cursor: pointer; }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            font-size: 10px;
+            color: #b0c4d4;
+        }
         
-        .animate-btn {
+        .legend-color {
+            width: 18px;
+            height: 3px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+        
+        .legend-color.dashed {
+            background: repeating-linear-gradient(90deg, #ffd60a 0, #ffd60a 4px, transparent 4px, transparent 7px);
+        }
+        
+        .time-control {
+            padding: 10px 0;
+            display: none;
+        }
+        
+        .time-display {
+            text-align: center;
+            font-size: 12px;
+            color: #8fa8bc;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .time-slider {
+            width: 100%;
+            height: 6px;
+            accent-color: #22c55e;
+            cursor: pointer;
+        }
+        
+        .animate-btn, .info-btn {
             width: 100%;
             padding: 10px;
             background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -151,229 +262,365 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 6px;
             transition: all 0.2s;
-            font-size: 12px;
+            font-size: 11px;
         }
         
-        .animate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); }
-        .animate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        
-        .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #6a8a9a; margin: 12px 0 6px 0; font-weight: 600; }
-        .info-text { font-size: 10px; color: #5a7a8a; margin-top: 12px; line-height: 1.5; }
-        .fossil-legend-item { display: flex; align-items: center; margin: 4px 0; font-size: 10px; color: #b0c4d4; }
-        .fossil-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; border: 1px solid rgba(255,255,255,0.3); }
-        .graticule { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 0.3; }
-
-        /* Learn Button */
-        .learn-btn {
-            width: 100%;
-            padding: 12px;
+        .info-btn {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border: none;
+        }
+        
+        .animate-btn:active, .info-btn:active { 
+            transform: scale(0.98);
+        }
+        
+        .animate-btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed;
+        }
+        
+        .section-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6a8a9a;
+            margin: 10px 0 5px 0;
+            font-weight: 600;
+        }
+        
+        .info-text {
+            font-size: 9px;
+            color: #5a7a8a;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .fossil-legend-item {
+            display: flex;
+            align-items: center;
+            margin: 3px 0;
+            font-size: 9px;
+            color: #b0c4d4;
+        }
+
+        .fossil-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .graticule {
+            fill: none;
+            stroke: rgba(255,255,255,0.06);
+            stroke-width: 0.5;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .control-panel {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-height: 70vh;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                opacity: 0;
+                pointer-events: none;
+                padding: 20px;
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+            
+            .control-panel.mobile-open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            
+            .control-panel::before {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+            }
+            
+            .plate-label {
+                font-size: 5px;
+            }
+            
+            .plate-boundary.divergent,
+            .plate-boundary.convergent { 
+                stroke-width: 1.5;
+            }
+            .plate-boundary.transform { 
+                stroke-width: 1;
+                stroke-dasharray: 4,2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .plate-label {
+                font-size: 4px;
+            }
+            
+            .control-panel h2 {
+                font-size: 14px;
+            }
+            
+            .toggle-btn {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .toggle-switch {
+                width: 40px;
+                height: 22px;
+            }
+            
+            .toggle-switch::after {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .toggle-switch.active::after { transform: translateX(18px); }
+        }
+
+        /* Effects Page Styles */
+        .effects-page {
+            display: none;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
+            padding: 15px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            color: white;
+            overflow-y: auto;
+        }
+        
+        .effects-page.active { display: block; }
+        
+        .effects-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 20px 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             color: white;
-            font-weight: 600;
             cursor: pointer;
-            margin-top: 12px;
             transition: all 0.2s;
             font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .learn-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
-
-        /* Educational Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .modal-overlay.active { display: flex; }
-        
-        .modal-content {
-            background: linear-gradient(180deg, #0f2744 0%, #0a1628 100%);
-            border-radius: 20px;
-            max-width: 1100px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         
-        .modal-header {
-            padding: 24px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: #0f2744;
-            z-index: 10;
+        .back-btn:active {
+            background: rgba(255,255,255,0.2);
         }
         
-        .modal-header h2 { margin: 0; color: white; font-size: 22px; }
-        
-        .close-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
+        .effects-title {
             font-size: 20px;
-            transition: all 0.2s;
-        }
-        .close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
-        
-        .modal-body { padding: 30px; }
-        
-        .boundary-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
         }
         
-        .tab-btn {
-            padding: 12px 24px;
-            border: 2px solid transparent;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            color: white;
-        }
-        
-        .tab-btn.convergent { background: rgba(230, 57, 70, 0.2); border-color: #e63946; }
-        .tab-btn.convergent:hover, .tab-btn.convergent.active { background: #e63946; }
-        
-        .tab-btn.divergent { background: rgba(255, 107, 53, 0.2); border-color: #ff6b35; }
-        .tab-btn.divergent:hover, .tab-btn.divergent.active { background: #ff6b35; }
-        
-        .tab-btn.transform { background: rgba(255, 214, 10, 0.2); border-color: #ffd60a; color: #ffd60a; }
-        .tab-btn.transform:hover, .tab-btn.transform.active { background: #ffd60a; color: #000; }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .content-grid {
+        .effects-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
         
-        @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
-        
-        .diagram-container {
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            padding: 20px;
+        .effect-card {
+            background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .diagram-container h3 { color: white; margin: 0 0 15px 0; font-size: 16px; }
-        
-        .info-container { color: #b0c4d4; }
-        .info-container h3 { color: white; margin: 0 0 15px 0; font-size: 18px; }
-        .info-container p { line-height: 1.7; margin: 12px 0; font-size: 14px; }
-        
-        .effects-list { list-style: none; padding: 0; margin: 20px 0; }
-        .effects-list li {
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.05);
-            margin: 8px 0;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .effects-list li:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
-        .effects-list .icon { font-size: 24px; }
-        
-        .examples-box {
-            background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
         }
-        .examples-box h4 { color: white; margin: 0 0 12px 0; font-size: 14px; }
-        .example-tag {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            margin: 4px;
-            font-size: 12px;
+        
+        @media (hover: hover) {
+            .effect-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+                border-color: rgba(255,255,255,0.2);
+            }
         }
-
-        /* Interactive Diagram Styles */
-        .interactive-diagram {
-            width: 100%;
-            height: 280px;
+        
+        .effect-visual {
+            height: 160px;
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .diagram-svg { width: 100%; height: 100%; }
-        
-        .plate-anim {
-            transition: transform 0.5s ease;
+        .diagram-svg {
+            width: 100%;
+            height: 100%;
         }
         
-        .magma { fill: #ff4500; }
-        .crust { fill: #8B4513; }
-        .mantle { fill: #CD853F; }
-        .ocean-water { fill: #1b4965; }
-        .mountain { fill: #6B8E23; }
-        .volcano-active { fill: #ff4500; animation: pulse 1s infinite; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .effect-content {
+            padding: 16px;
         }
         
-        .arrow {
-            fill: none;
-            stroke: white;
-            stroke-width: 3;
-            marker-end: url(#arrowhead);
-        }
-        
-        .label-text {
-            fill: white;
-            font-size: 11px;
+        .effect-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
         
-        .subtext {
-            fill: #aaa;
-            font-size: 9px;
+        .effect-type.convergent { background: #e63946; }
+        .effect-type.divergent { background: #ff6b35; }
+        .effect-type.transform { background: #ffd60a; color: #000; }
+        
+        .effect-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .effect-description {
+            font-size: 12px;
+            color: #b0c4d4;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .effect-examples {
+            font-size: 11px;
+            color: #8fa8bc;
+        }
+        
+        .effect-examples strong {
+            color: #22c55e;
+        }
+
+        @media (max-width: 480px) {
+            .effects-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .effects-title {
+                font-size: 18px;
+                order: -1;
+                margin-bottom: 10px;
+            }
+            
+            .back-btn {
+                align-self: flex-start;
+            }
+            
+            .effect-visual {
+                height: 140px;
+            }
+            
+            .effect-name {
+                font-size: 15px;
+            }
+            
+            .effect-description {
+                font-size: 11px;
+            }
+        }
+
+        /* Animations */
+        @keyframes diverge {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-12px); }
+        }
+        
+        @keyframes diverge-right {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(12px); }
+        }
+        
+        @keyframes converge {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(8px); }
+        }
+        
+        @keyframes converge-right {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-8px); }
+        }
+        
+        @keyframes magma-rise {
+            0% { transform: translateY(15px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-25px); opacity: 0; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .plate-left { animation: diverge 3s ease-in-out infinite; }
+        .plate-right { animation: diverge-right 3s ease-in-out infinite; }
+        .plate-converge-left { animation: converge 3s ease-in-out infinite; }
+        .plate-converge-right { animation: converge-right 3s ease-in-out infinite; }
+        .magma-bubble { animation: magma-rise 2s ease-in-out infinite; }
+        .earthquake-zone { animation: shake 0.5s ease-in-out infinite; }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
 <body>
-    <div class="map-container">
+    <!-- Overlay for mobile menu -->
+    <div class="overlay" id="overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Main Map View -->
+    <div class="map-container" id="mapView">
         <svg id="worldMap" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -381,9 +628,19 @@
                     <stop offset="50%" style="stop-color:#1b4965"/>
                     <stop offset="100%" style="stop-color:#153a52"/>
                 </linearGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <marker id="arrow1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#fff"/>
+                </marker>
             </defs>
             
-            <!-- Ocean -->
+            <!-- Ocean background -->
             <rect class="ocean" width="1000" height="500" fill="url(#oceanGradient)"/>
             
             <!-- Graticule -->
@@ -396,198 +653,161 @@
                 <path d="M750,0 L750,500"/>
             </g>
             
-            <!-- More Accurate Continents -->
+            <!-- World Map - Continents -->
             <g id="continents">
-                <!-- North America - More detailed shape -->
-                <path class="land" id="northAmerica" d="M52,58 L58,52 68,48 82,45 98,44 115,46 130,42 148,38 168,36 188,38 205,42 218,38 232,32 248,28 265,26 282,28 298,32 312,28 325,22 338,20 352,22 365,28 375,36 378,45 372,55 362,62 350,68 342,75 338,85 342,98 352,108 365,118 378,125 388,135 395,148 398,162 392,175 382,188 370,198 360,208 355,218 360,230 372,238 385,245 392,255 385,268 370,278 352,285 340,290 328,295 318,302 310,310 305,318 298,320 288,318 278,310 272,298 275,285 282,275 292,268 298,260 295,250 285,242 272,238 258,235 242,232 225,228 210,222 198,215 188,208 180,200 175,190 178,178 188,168 200,158 210,148 215,138 208,128 198,120 185,115 172,112 160,112 148,115 138,122 128,132 120,145 112,158 102,168 90,175 78,178 68,175 60,168 55,158 52,145 55,130 62,118 72,108 85,100 95,92 100,82 95,72 85,65 72,60 60,58 52,58 Z
-                M35,48 L45,42 60,40 78,42 95,48 108,58 112,72 105,85 92,95 75,98 58,95 45,88 38,78 35,65 38,52 35,48 Z"/>
+                <!-- North America -->
+                <path class="land" id="northAmerica" d="M165,70 L167,68 L172,65 L180,63 L190,60 L200,58 L212,56 L225,55 L238,54 L250,55 L260,58 L268,62 L275,60 L280,56 L288,53 L298,52 L310,54 L318,58 L325,55 L332,52 L340,54 L345,58 L348,55 L352,50 L360,48 L368,50 L375,55 L378,62 L375,70 L368,78 L360,85 L355,92 L358,100 L365,108 L372,115 L378,122 L385,128 L390,135 L392,142 L390,150 L385,158 L378,165 L370,172 L362,178 L358,185 L362,192 L370,198 L378,205 L382,212 L378,220 L370,225 L360,230 L352,235 L345,240 L340,245 L335,250 L328,252 L320,250 L315,245 L320,238 L328,232 L335,225 L332,218 L325,212 L315,208 L305,205 L295,200 L285,195 L275,190 L268,185 L260,180 L255,175 L250,168 L248,160 L252,152 L260,145 L268,138 L275,130 L280,122 L278,115 L272,108 L265,102 L258,98 L250,95 L242,92 L235,90 L228,88 L220,88 L212,90 L205,95 L198,102 L195,110 L190,118 L185,125 L180,132 L175,140 L168,145 L160,148 L152,145 L145,140 L140,132 L138,122 L140,112 L145,102 L152,95 L160,88 L165,80 L165,70 Z M58,52 L65,48 L75,46 L88,48 L100,52 L110,58 L115,68 L110,78 L100,88 L88,92 L75,90 L65,84 L58,75 L55,65 L58,52 Z M135,50 L145,45 L158,44 L170,48 L178,55 L180,65 L175,75 L165,80 L152,78 L142,72 L135,62 L135,50 Z"/>
                 
                 <!-- Greenland -->
-                <path class="land" id="greenland" d="M320,15 L338,10 360,8 385,12 405,22 420,38 428,58 425,78 412,98 392,112 368,120 345,118 325,108 312,92 308,72 315,50 325,32 320,15 Z"/>
+                <path class="land" id="greenland" d="M335,28 L352,22 L375,18 L400,20 L422,28 L440,42 L452,60 L455,80 L448,100 L435,118 L415,132 L392,140 L368,142 L348,135 L332,122 L322,105 L318,85 L322,65 L332,48 L342,35 L335,28 Z"/>
                 
                 <!-- South America -->
-                <path class="land" id="southAmerica" d="M268,248 L282,242 298,245 312,255 322,268 330,285 335,305 338,328 338,352 335,375 328,398 318,418 305,435 290,450 275,462 262,470 252,472 245,468 242,458 240,445 238,428 238,408 240,385 242,362 245,338 250,315 256,292 264,272 268,255 268,248 Z
-                M275,248 L285,255 290,262 285,268 275,265 270,258 275,250 275,248 Z"/>
+                <path class="land" id="southAmerica" d="M280,252 L290,248 L302,250 L315,258 L325,270 L332,285 L338,302 L342,320 L345,340 L345,362 L342,382 L335,402 L325,420 L312,435 L298,448 L285,458 L275,465 L268,468 L262,465 L258,458 L255,448 L252,435 L250,420 L248,402 L248,382 L250,362 L252,342 L255,322 L258,302 L262,285 L268,270 L275,258 L280,252 Z"/>
                 
                 <!-- Africa -->
-                <path class="land" id="africa" d="M438,168 L455,162 475,160 495,165 512,175 525,188 532,202 528,215 515,218 500,215 488,205 478,195 468,188 458,182 448,178 438,172 438,168 Z
-                M445,218 L465,212 488,218 510,232 528,252 542,278 552,308 558,340 558,372 552,402 540,428 522,450 498,465 472,472 448,468 428,455 412,435 402,410 398,382 402,352 412,325 428,298 448,275 465,255 475,238 472,225 458,220 445,218 Z"/>
+                <path class="land" id="africa" d="M465,175 L478,170 L495,172 L512,180 L528,192 L540,205 L545,215 L532,218 L520,215 L508,208 L498,198 L488,190 L478,182 L468,177 L465,175 Z M468,218 L485,212 L505,218 L525,232 L542,252 L555,275 L565,302 L570,332 L570,362 L565,392 L552,420 L532,445 L508,462 L480,470 L455,468 L432,455 L415,435 L405,410 L400,382 L402,352 L410,322 L425,295 L445,270 L462,248 L472,232 L475,220 L468,218 Z"/>
                 
                 <!-- Madagascar -->
-                <path class="land" id="madagascar" d="M565,340 L578,332 592,338 602,355 605,375 600,398 588,418 572,428 558,425 550,408 548,388 552,365 560,348 565,340 Z"/>
+                <path class="land" id="madagascar" d="M585,365 L598,358 L612,368 L618,388 L612,410 L598,428 L582,432 L572,422 L570,402 L575,382 L585,365 Z"/>
                 
                 <!-- Europe -->
-                <path class="land" id="europe" d="M435,82 L448,78 462,80 475,88 485,98 490,110 485,122 475,128 465,135 472,145 465,155 452,162 438,165 425,162 415,168 405,175 395,172 392,162 398,150 410,138 425,128 438,118 448,108 445,98 438,90 435,82 Z
-                M408,95 L420,90 432,92 442,100 438,112 425,118 412,115 405,105 408,95 Z"/>
+                <path class="land" id="europe" d="M465,82 L478,78 L495,80 L512,88 L525,98 L532,110 L525,120 L515,128 L522,138 L515,148 L500,155 L485,160 L468,162 L455,160 L445,168 L432,175 L422,172 L420,160 L432,148 L445,138 L458,128 L468,118 L472,108 L468,98 L462,90 L465,82 Z"/>
                 
                 <!-- UK & Ireland -->
-                <path class="land" id="uk" d="M398,92 L408,88 418,90 425,98 422,108 412,112 402,108 398,100 398,92 Z
-                M388,98 L395,95 402,98 402,105 395,110 388,105 388,98 Z"/>
+                <path class="land" id="uk" d="M420,98 L432,95 L442,102 L440,115 L430,122 L418,118 L415,108 L420,98 Z M405,105 L415,102 L422,110 L418,118 L408,118 L405,110 L405,105 Z"/>
                 
                 <!-- Asia -->
-                <path class="land" id="asia" d="M492,55 L520,48 555,45 595,48 638,55 682,68 722,85 758,108 788,135 810,165 822,198 825,232 818,265 802,295 778,320 748,340 715,355 680,362 645,365 612,362 582,355 558,345 542,332 535,315 545,298 565,285 590,275 618,270 645,268 668,262 682,250 688,235 682,218 668,202 648,192 625,185 602,182 580,182 562,188 548,200 538,215 530,205 520,192 508,180 495,170 482,165 470,165 460,168 465,162 482,155 500,150 515,142 522,130 512,122 522,115 532,105 525,92 512,82 518,72 532,65 548,58 530,55 510,55 492,55 Z"/>
+                <path class="land" id="asia" d="M545,55 L570,50 L600,52 L640,58 L685,68 L725,82 L762,100 L795,125 L822,155 L842,190 L850,228 L845,265 L830,298 L805,328 L775,352 L742,370 L708,382 L675,388 L642,388 L612,382 L585,372 L565,358 L555,342 L558,322 L572,305 L592,290 L615,278 L640,270 L660,258 L672,242 L675,225 L668,210 L655,198 L638,192 L620,190 L602,192 L588,202 L575,215 L548,218 L540,205 L528,192 L512,180 L495,172 L478,170 L465,175 L468,162 L485,160 L500,155 L515,148 L522,138 L515,128 L525,120 L532,110 L525,98 L535,88 L550,75 L545,55 Z"/>
                 
                 <!-- Japan -->
-                <path class="land" id="japan" d="M855,125 L868,118 882,122 892,135 892,152 882,165 868,170 855,165 850,152 855,138 855,125 Z
-                M862,172 L875,168 888,175 892,190 885,205 872,212 860,205 858,190 862,175 862,172 Z"/>
+                <path class="land" id="japan" d="M868,135 L882,128 L895,135 L898,152 L890,168 L875,175 L862,168 L860,152 L868,135 Z M878,178 L892,172 L902,185 L900,202 L888,212 L875,208 L872,192 L878,178 Z"/>
                 
                 <!-- India -->
-                <path class="land" id="india" d="M618,202 L638,195 660,200 680,215 695,238 702,265 698,292 682,318 660,338 635,348 612,342 595,325 585,302 588,275 602,250 620,228 625,212 618,202 Z
-                M655,350 L668,345 680,352 685,368 678,382 665,388 652,382 650,368 655,352 655,350 Z"/>
+                <path class="land" id="india" d="M645,215 L665,208 L688,218 L708,238 L720,265 L718,295 L702,322 L678,345 L652,358 L628,352 L612,335 L605,310 L608,282 L622,255 L640,232 L645,215 Z M680,362 L695,355 L708,368 L705,385 L692,395 L678,388 L678,372 L680,362 Z"/>
                 
                 <!-- Southeast Asia & Indonesia -->
-                <path class="land" id="seAsia" d="M728,232 L748,225 770,232 788,248 800,272 802,298 795,325 780,348 758,365 735,372 712,365 698,350 692,328 698,305 712,280 732,258 738,242 728,232 Z
-                M812,280 L832,275 852,285 868,302 878,325 875,350 862,375 842,395 818,405 795,400 782,385 788,362 805,338 825,318 835,298 828,282 812,280 Z
-                M768,408 L788,402 810,412 825,432 828,455 818,478 798,495 772,502 750,495 742,475 752,452 770,430 775,415 768,408 Z
-                M838,405 L858,400 880,410 898,430 902,455 892,480 872,498 848,502 828,492 825,470 838,445 855,425 858,412 838,405 Z"/>
+                <path class="land" id="seAsia" d="M755,248 L775,242 L798,252 L818,272 L830,298 L828,328 L815,355 L795,378 L770,392 L745,395 L722,385 L708,365 L708,338 L722,310 L742,285 L758,262 L755,248 Z M838,305 L858,298 L878,312 L892,338 L890,372 L875,402 L852,425 L825,438 L802,432 L795,408 L812,375 L832,345 L845,318 L838,305 Z M792,442 L812,435 L832,448 L842,475 L838,502 L820,522 L795,528 L775,518 L775,488 L785,462 L792,442 Z"/>
                 
                 <!-- Australia -->
-                <path class="land" id="australia" d="M752,345 L782,338 815,340 848,352 878,372 902,400 918,432 925,468 918,502 898,532 868,555 832,568 795,572 758,565 725,548 700,522 688,492 690,458 705,428 728,400 755,378 778,358 765,348 752,345 Z
-                M865,575 L885,568 905,578 918,598 915,620 900,638 878,645 858,635 855,615 865,592 870,580 865,575 Z"/>
+                <path class="land" id="australia" d="M785,362 L815,355 L848,362 L882,380 L912,405 L935,438 L945,475 L938,512 L918,545 L888,572 L852,592 L812,602 L772,598 L738,582 L712,558 L698,528 L695,495 L708,458 L732,425 L762,398 L792,375 L785,362 Z M888,605 L908,598 L928,612 L935,638 L922,658 L902,668 L885,658 L880,635 L888,605 Z"/>
                 
                 <!-- New Zealand -->
-                <path class="land" id="newzealand" d="M948,445 L962,438 978,448 985,465 978,482 962,492 948,485 942,470 948,455 948,445 Z
-                M935,495 L950,488 965,498 972,518 965,538 948,550 932,545 928,525 935,505 935,495 Z"/>
+                <path class="land" id="newzealand" d="M958,478 L975,472 L988,485 L988,505 L975,520 L958,518 L952,502 L958,478 Z M942,525 L958,518 L972,535 L970,558 L955,572 L940,568 L938,548 L942,525 Z"/>
                 
                 <!-- Antarctica -->
-                <path class="land" id="antarctica" d="M50,478 L120,468 220,462 350,458 500,456 650,458 780,462 880,468 950,478 920,488 780,495 600,498 400,498 220,495 100,488 50,482 50,478 Z"/>
+                <path class="land" id="antarctica" d="M100,485 L180,478 L280,475 L400,472 L540,470 L680,472 L800,475 L900,480 L970,488 L955,498 L800,502 L600,505 L400,502 L200,498 L80,492 L100,485 Z"/>
                 
-                <!-- Arabia -->
-                <path class="land" id="arabia" d="M528,205 L548,198 568,205 585,220 598,242 600,268 592,292 575,312 552,325 530,322 515,305 510,282 515,258 525,235 530,215 528,205 Z"/>
+                <!-- Arabian Peninsula -->
+                <path class="land" id="arabia" d="M548,215 L575,212 L598,228 L615,258 L620,290 L608,320 L585,345 L558,355 L538,342 L530,315 L535,282 L545,252 L548,215 Z"/>
                 
                 <!-- Central America -->
-                <path class="land" id="centralAmerica" d="M198,225 L215,218 232,222 248,235 258,252 255,270 242,282 225,285 210,278 200,265 195,250 198,235 198,225 Z"/>
+                <path class="land" id="centralAmerica" d="M212,238 L228,232 L248,242 L260,258 L258,275 L245,288 L228,285 L215,272 L212,255 L212,238 Z"/>
                 
                 <!-- Caribbean -->
-                <path class="land" id="caribbean" d="M262,238 L280,232 300,238 318,252 325,268 318,282 300,288 282,285 268,272 262,255 262,242 262,238 Z"/>
+                <path class="land" id="caribbean" d="M272,242 L292,238 L312,248 L322,265 L318,280 L302,288 L285,282 L272,268 L272,242 Z"/>
             </g>
             
-            <!-- Plate Boundaries - More Accurate -->
+            <!-- Plate boundaries -->
             <g id="plateBoundaries">
-                <!-- Mid-Atlantic Ridge (Divergent) -->
-                <path class="plate-boundary divergent" d="M365,12 C362,45 358,80 355,115 C352,150 348,185 345,220 C342,255 338,290 335,325 C332,360 328,395 325,430 C322,455 320,475 318,492"/>
+                <!-- Mid-Atlantic Ridge -->
+                <path class="plate-boundary divergent" d="M380,15 Q375,80 370,150 Q365,220 358,290 Q352,360 345,430 Q340,468 335,500"/>
                 
-                <!-- East Pacific Rise (Divergent) -->
-                <path class="plate-boundary divergent" d="M132,175 C138,215 145,255 152,295 C158,335 165,375 172,415 C178,445 182,470 185,492"/>
+                <!-- East Pacific Rise -->
+                <path class="plate-boundary divergent" d="M145,195 Q152,260 160,330 Q168,400 175,470 Q178,490 180,500"/>
                 
-                <!-- Southeast Indian Ridge (Divergent) -->
-                <path class="plate-boundary divergent" d="M560,415 C615,420 675,428 735,438 C795,448 855,458 900,468"/>
+                <!-- Southeast Indian Ridge -->
+                <path class="plate-boundary divergent" d="M580,435 Q660,442 740,455 Q820,468 890,480"/>
                 
-                <!-- Southwest Indian Ridge (Divergent) -->
-                <path class="plate-boundary divergent" d="M385,432 C435,428 490,422 545,418 C570,415 585,415 560,415"/>
+                <!-- Southwest Indian Ridge -->
+                <path class="plate-boundary divergent" d="M420,450 Q500,442 570,435 L580,435"/>
                 
-                <!-- Central Indian Ridge (Divergent) -->
-                <path class="plate-boundary divergent" d="M555,285 C560,320 565,355 568,390 C570,410 565,420 560,415"/>
+                <!-- Central Indian Ridge -->
+                <path class="plate-boundary divergent" d="M575,300 Q580,355 582,410 Q585,430 580,435"/>
                 
-                <!-- Pacific-Antarctic Ridge (Divergent) -->
-                <path class="plate-boundary divergent" d="M185,492 C260,482 360,475 480,472 C600,470 720,475 850,488"/>
+                <!-- Pacific-Antarctic Ridge -->
+                <path class="plate-boundary divergent" d="M180,500 Q320,488 480,482 Q640,480 780,488 Q870,495 890,500"/>
                 
-                <!-- Gakkel Ridge - Arctic (Divergent) -->
-                <path class="plate-boundary divergent" d="M365,12 C420,8 500,5 580,8 C660,12 740,22 800,35"/>
+                <!-- Red Sea Rift -->
+                <path class="plate-boundary divergent" d="M545,210 Q552,235 550,265"/>
                 
-                <!-- Red Sea Rift (Divergent) -->
-                <path class="plate-boundary divergent" d="M520,195 C528,220 535,245 530,275"/>
+                <!-- East African Rift -->
+                <path class="plate-boundary divergent" d="M540,295 Q535,345 530,395 Q525,445 520,480"/>
                 
-                <!-- East African Rift (Divergent) -->
-                <path class="plate-boundary divergent" d="M515,285 C510,320 505,355 502,392 C498,425 495,455 492,480"/>
+                <!-- Ring of Fire - Western Pacific -->
+                <path class="plate-boundary convergent" d="M920,70 Q915,150 910,235 Q905,320 900,405 Q895,470 890,500"/>
                 
-                <!-- Ring of Fire - Western Pacific (Convergent) -->
-                <path class="plate-boundary convergent" d="M920,55 C912,100 905,150 900,200 C895,250 890,300 885,350 C880,400 875,450 870,490"/>
+                <!-- Peru-Chile Trench -->
+                <path class="plate-boundary convergent" d="M252,275 Q248,355 245,435 Q242,480 240,500"/>
                 
-                <!-- Peru-Chile Trench (Convergent) -->
-                <path class="plate-boundary convergent" d="M235,260 C232,310 228,360 225,410 C222,450 220,475 218,492"/>
+                <!-- Cascadia -->
+                <path class="plate-boundary convergent" d="M135,100 Q148,150 162,200 Q172,235 180,265"/>
                 
-                <!-- Cascadia Subduction Zone (Convergent) -->
-                <path class="plate-boundary convergent" d="M115,88 C125,115 135,145 145,175 C152,198 158,215 162,230"/>
+                <!-- Aleutian Trench -->
+                <path class="plate-boundary convergent" d="M60,80 Q160,72 280,75 Q380,82 400,95"/>
                 
-                <!-- Aleutian Trench (Convergent) -->
-                <path class="plate-boundary convergent" d="M42,65 C95,58 160,52 230,55 C300,58 365,68 400,82"/>
+                <!-- Japan Trench -->
+                <path class="plate-boundary convergent" d="M895,115 Q892,180 888,248 Q885,315 882,365"/>
                 
-                <!-- Japan Trench (Convergent) -->
-                <path class="plate-boundary convergent" d="M898,95 C895,135 892,175 888,215 C885,255 882,295 878,335"/>
+                <!-- Sunda/Java Trench -->
+                <path class="plate-boundary convergent" d="M675,365 Q755,385 838,415 Q905,445 965,478"/>
                 
-                <!-- Philippine Trench (Convergent) -->
-                <path class="plate-boundary convergent" d="M875,195 C868,240 862,285 858,330 C855,375 852,420 848,465"/>
+                <!-- Himalayan Front -->
+                <path class="plate-boundary convergent" d="M615,210 Q680,202 748,208 Q815,218 885,238"/>
                 
-                <!-- Sunda Trench (Convergent) -->
-                <path class="plate-boundary convergent" d="M645,352 C705,370 768,390 830,415 C880,435 920,455 955,478"/>
+                <!-- Mediterranean/Alpine -->
+                <path class="plate-boundary convergent" d="M432,168 Q492,162 555,170 Q618,182 682,202"/>
                 
-                <!-- Himalayan Front (Convergent) -->
-                <path class="plate-boundary convergent" d="M592,198 C640,190 692,188 745,195 C798,202 848,218 890,238"/>
+                <!-- San Andreas -->
+                <path class="plate-boundary transform" d="M135,105 Q155,155 175,210 Q190,255 200,295"/>
                 
-                <!-- Mediterranean-Alpine (Convergent) -->
-                <path class="plate-boundary convergent" d="M400,162 C445,155 495,152 545,158 C595,165 645,180 692,200"/>
+                <!-- Alpine Fault NZ -->
+                <path class="plate-boundary transform" d="M955,495 Q968,525 980,565"/>
                 
-                <!-- Caribbean Plate Boundary (Convergent) -->
-                <path class="plate-boundary convergent" d="M228,240 C275,232 325,230 375,242"/>
-                
-                <!-- San Andreas Fault (Transform) -->
-                <path class="plate-boundary transform" d="M118,92 C135,125 152,160 168,198 C182,230 192,255 198,275"/>
-                
-                <!-- Alpine Fault NZ (Transform) -->
-                <path class="plate-boundary transform" d="M942,458 C955,485 968,515 975,545"/>
-                
-                <!-- North Anatolian Fault (Transform) -->
-                <path class="plate-boundary transform" d="M500,158 C548,152 598,150 650,158 C702,168 752,185 798,208"/>
-                
-                <!-- Dead Sea Transform (Transform) -->
-                <path class="plate-boundary transform" d="M522,198 C518,225 515,252 512,280"/>
-                
-                <!-- Queen Charlotte Fault (Transform) -->
-                <path class="plate-boundary transform" d="M95,62 C105,75 115,88 122,100"/>
-                
-                <!-- Azores-Gibraltar Transform (Transform) -->
-                <path class="plate-boundary transform" d="M355,162 C380,160 405,160 430,165"/>
+                <!-- North Anatolian -->
+                <path class="plate-boundary transform" d="M528,165 Q588,158 655,168 Q722,182 792,205"/>
             </g>
             
-            <!-- Fossil Evidence Regions -->
+            <!-- Fossil regions -->
             <g id="fossilRegions">
-                <!-- Mesosaurus -->
-                <ellipse class="fossil-region" cx="285" cy="340" rx="22" ry="40" fill="#e63946"/>
-                <ellipse class="fossil-region" cx="468" cy="355" rx="22" ry="45" fill="#e63946"/>
-                
-                <!-- Lystrosaurus -->
-                <ellipse class="fossil-region" cx="492" cy="395" rx="25" ry="35" fill="#8338ec"/>
-                <ellipse class="fossil-region" cx="645" cy="298" rx="22" ry="30" fill="#8338ec"/>
-                <ellipse class="fossil-region" cx="575" cy="472" rx="45" ry="18" fill="#8338ec"/>
-                <ellipse class="fossil-region" cx="835" cy="468" rx="32" ry="40" fill="#8338ec"/>
-                
-                <!-- Cynognathus -->
-                <ellipse class="fossil-region" cx="275" cy="398" rx="20" ry="35" fill="#3a86ff"/>
-                <ellipse class="fossil-region" cx="478" cy="402" rx="22" ry="40" fill="#3a86ff"/>
-                
-                <!-- Glossopteris -->
-                <ellipse class="fossil-region" cx="290" cy="385" rx="30" ry="55" fill="#fb8500" opacity="0.5"/>
-                <ellipse class="fossil-region" cx="488" cy="380" rx="45" ry="65" fill="#fb8500" opacity="0.5"/>
-                <ellipse class="fossil-region" cx="655" cy="305" rx="35" ry="50" fill="#fb8500" opacity="0.5"/>
-                <ellipse class="fossil-region" cx="820" cy="445" rx="50" ry="70" fill="#fb8500" opacity="0.5"/>
-                <path class="fossil-region" d="M150,468 Q450,455 750,460 Q900,465 950,475 L920,488 Q650,495 350,495 Q150,492 80,485 Z" fill="#fb8500" opacity="0.4"/>
+                <ellipse class="fossil-region" cx="295" cy="345" rx="20" ry="38" fill="#e63946"/>
+                <ellipse class="fossil-region" cx="485" cy="365" rx="20" ry="42" fill="#e63946"/>
+                <ellipse class="fossil-region" cx="510" cy="410" rx="22" ry="32" fill="#8338ec"/>
+                <ellipse class="fossil-region" cx="665" cy="310" rx="20" ry="28" fill="#8338ec"/>
+                <ellipse class="fossil-region" cx="860" cy="500" rx="28" ry="38" fill="#8338ec"/>
+                <ellipse class="fossil-region" cx="288" cy="408" rx="18" ry="32" fill="#3a86ff"/>
+                <ellipse class="fossil-region" cx="495" cy="415" rx="20" ry="38" fill="#3a86ff"/>
+                <ellipse class="fossil-region" cx="298" cy="395" rx="22" ry="48" fill="#fb8500"/>
+                <ellipse class="fossil-region" cx="495" cy="395" rx="28" ry="52" fill="#fb8500"/>
+                <ellipse class="fossil-region" cx="665" cy="325" rx="22" ry="38" fill="#fb8500"/>
+                <ellipse class="fossil-region" cx="840" cy="490" rx="32" ry="48" fill="#fb8500"/>
             </g>
             
-            <!-- Plate Labels -->
+            <!-- Labels -->
             <g id="plateLabels">
-                <text class="plate-label" x="75" y="320">Placa do Pacífico</text>
-                <text class="plate-label" x="225" y="130">Placa Norte-Americana</text>
-                <text class="plate-label" x="288" cy="375">Placa Sul-Americana</text>
-                <text class="plate-label" x="288" y="375">Placa Sul-Americana</text>
-                <text class="plate-label" x="488" y="330">Placa Africana</text>
-                <text class="plate-label" x="635" y="95">Placa Eurasiática</text>
-                <text class="plate-label" x="812" y="445">Placa Australiana</text>
-                <text class="plate-label" x="520" y="485">Placa Antártica</text>
-                <text class="plate-label" x="175" y="335">Placa de Nazca</text>
-                <text class="plate-label" x="648" y="265">Placa Indiana</text>
-                <text class="plate-label" x="862" y="275">Placa das Filipinas</text>
-                <text class="plate-label" x="288" y="262">Placa das Caraíbas</text>
-                <text class="plate-label" x="548" y="268">Placa Arábica</text>
-                <text class="plate-label" x="168" y="262">Placa de Cocos</text>
-                <text class="plate-label" x="105" y="115">Juan de Fuca</text>
-                <text class="plate-label" x="298" y="468">Placa de Scotia</text>
+                <text class="plate-label" x="85" y="340">Placa do Pacífico</text>
+                <text class="plate-label" x="250" y="140">Placa Norte-Americana</text>
+                <text class="plate-label" x="305" y="385">Placa Sul-Americana</text>
+                <text class="plate-label" x="500" cy="350">Placa Africana</text>
+                <text class="plate-label" x="655" y="105">Placa Eurasiática</text>
+                <text class="plate-label" x="835" y="470">Placa Australiana</text>
+                <text class="plate-label" x="550" y="492">Placa Antártica</text>
+                <text class="plate-label" x="188" y="355">Nazca</text>
+                <text class="plate-label" x="665" y="275">Placa Indiana</text>
+                <text class="plate-label" x="875" y="285">Filipina</text>
+                <text class="plate-label" x="295" y="268">Caraíbas</text>
+                <text class="plate-label" x="570" y="275">Arábica</text>
+                <text class="plate-label" x="180" y="275">Cocos</text>
             </g>
         </svg>
     </div>
     
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">
+        <span id="menuIcon">☰</span>
+    </button>
+    
     <!-- Control Panel -->
-    <div class="control-panel">
+    <div class="control-panel" id="controlPanel">
         <h2>🌍 Placas Tectónicas</h2>
         
         <div class="toggle-btn" onclick="toggleLabels()">
@@ -608,21 +828,23 @@
         <div id="timeControl" class="time-control">
             <div class="time-display" id="timeDisplay">Há 200 Milhões de Anos</div>
             <input type="range" id="timeSlider" class="time-slider" min="0" max="200" value="200">
-            <button id="animateBtn" class="animate-btn" onclick="animateDrift()">▶ Animar Deriva Continental</button>
+            <button id="animateBtn" class="animate-btn" onclick="animateDrift()">▶ Animar Deriva</button>
         </div>
         
         <div class="toggle-btn" onclick="toggleFossils()">
-            <span>🦴 Evidências Fósseis</span>
+            <span>🦴 Evidência Fóssil</span>
             <div id="fossilToggle" class="toggle-switch"></div>
         </div>
         
         <div id="fossilLegend" class="legend" style="display:none;">
-            <div class="section-label">Fósseis Entre Continentes</div>
+            <div class="section-label">Fósseis</div>
             <div class="fossil-legend-item"><div class="fossil-dot" style="background:#e63946;"></div>Mesosaurus</div>
             <div class="fossil-legend-item"><div class="fossil-dot" style="background:#8338ec;"></div>Lystrosaurus</div>
             <div class="fossil-legend-item"><div class="fossil-dot" style="background:#3a86ff;"></div>Cynognathus</div>
             <div class="fossil-legend-item"><div class="fossil-dot" style="background:#fb8500;"></div>Glossopteris</div>
         </div>
+        
+        <button class="info-btn" onclick="showEffectsPage()">📚 Efeitos dos Movimentos</button>
         
         <div class="legend">
             <div class="section-label">Tipos de Limites</div>
@@ -631,294 +853,309 @@
             <div class="legend-item"><div class="legend-color dashed"></div>Transformante</div>
         </div>
         
-        <button class="learn-btn" onclick="openModal()">
-            📚 Aprender Sobre os Limites
-        </button>
-        
         <div class="info-text">
-            Clique em "Aprender Sobre os Limites" para explorar interativamente o que acontece em cada tipo de limite de placa.
+            Explore as placas tectónicas da Terra. Ative o modo Pangeia para ver como os continentes estavam unidos há ~200 milhões de anos.
         </div>
     </div>
 
-    <!-- Educational Modal -->
-    <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🌋 Tipos de Limites de Placas</h2>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+    <!-- Effects Page -->
+    <div class="effects-page" id="effectsPage">
+        <div class="effects-header">
+            <button class="back-btn" onclick="hideEffectsPage()">← Voltar</button>
+            <h1 class="effects-title">🌋 Efeitos Tectónicos</h1>
+            <div style="width: 80px;"></div>
+        </div>
+        
+        <div class="effects-grid">
+            <!-- Divergent - Ridge -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 45%, #8B4513 45%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="72" width="300" height="88" fill="#CD853F"/>
+                        <rect x="0" y="60" width="300" height="20" fill="#8B4513"/>
+                        <rect x="0" y="0" width="300" height="60" fill="#1b4965"/>
+                        <g class="plate-left"><rect x="0" y="60" width="140" height="20" fill="#6B4423"/></g>
+                        <g class="plate-right"><rect x="160" y="60" width="140" height="20" fill="#6B4423"/></g>
+                        <circle cx="150" cy="100" r="6" fill="#FF4500" class="magma-bubble"/>
+                        <circle cx="145" cy="90" r="4" fill="#FF6347" class="magma-bubble" style="animation-delay: 0.5s;"/>
+                        <circle cx="155" cy="85" r="3" fill="#FF6347" class="magma-bubble" style="animation-delay: 1s;"/>
+                        <polygon points="140,60 150,52 160,60" fill="#4a2c1a"/>
+                        <path d="M95,70 L55,70" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M205,70 L245,70" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type divergent">Divergente</span>
+                    <h3 class="effect-name">Dorsais Oceânicas</h3>
+                    <p class="effect-description">Quando placas se afastam, magma sobe e solidifica, criando nova crosta oceânica e cadeias montanhosas submarinas.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Dorsal Médio-Atlântica</p>
+                </div>
             </div>
-            <div class="modal-body">
-                <div class="boundary-tabs">
-                    <button class="tab-btn convergent active" onclick="showTab('convergent')">🔴 Convergente</button>
-                    <button class="tab-btn divergent" onclick="showTab('divergent')">🟠 Divergente</button>
-                    <button class="tab-btn transform" onclick="showTab('transform')">🟡 Transformante</button>
+
+            <!-- Divergent - Rift -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 25%, #8B4513 25%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="40" width="300" height="120" fill="#CD853F"/>
+                        <rect x="0" y="0" width="300" height="40" fill="#87CEEB"/>
+                        <g class="plate-left">
+                            <path d="M0,28 L125,28 L120,40 L0,40 Z" fill="#2d5a35"/>
+                            <rect x="0" y="40" width="120" height="28" fill="#6B4423"/>
+                        </g>
+                        <g class="plate-right">
+                            <path d="M180,28 L300,28 L300,40 L180,40 Z" fill="#2d5a35"/>
+                            <rect x="180" y="40" width="120" height="28" fill="#6B4423"/>
+                        </g>
+                        <polygon points="120,40 150,95 180,40" fill="#1b4965"/>
+                        <ellipse cx="150" cy="62" rx="12" ry="6" fill="#4a90a4"/>
+                        <circle cx="150" cy="120" r="10" fill="#FF4500" class="magma-bubble"/>
+                        <path d="M70,52 L30,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M230,52 L270,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                    </svg>
                 </div>
-                
-                <!-- Convergent Tab -->
-                <div class="tab-content active" id="tab-convergent">
-                    <div class="content-grid">
-                        <div class="diagram-container">
-                            <h3>Diagrama Interativo</h3>
-                            <div class="interactive-diagram" id="convergent-diagram">
-                                <svg class="diagram-svg" viewBox="0 0 400 250">
-                                    <defs>
-                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="white"/>
-                                        </marker>
-                                        <linearGradient id="mantleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" style="stop-color:#CD853F"/>
-                                            <stop offset="100%" style="stop-color:#8B4513"/>
-                                        </linearGradient>
-                                        <linearGradient id="magmaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" style="stop-color:#ff6347"/>
-                                            <stop offset="100%" style="stop-color:#ff4500"/>
-                                        </linearGradient>
-                                    </defs>
-                                    
-                                    <!-- Ocean -->
-                                    <rect x="0" y="0" width="400" height="80" fill="#1b4965"/>
-                                    
-                                    <!-- Mantle -->
-                                    <rect x="0" y="130" width="400" height="120" fill="url(#mantleGrad)"/>
-                                    
-                                    <!-- Subducting Oceanic Plate -->
-                                    <path d="M0,80 L180,80 Q220,85 240,140 L260,200 L0,200 Z" fill="#5a5a5a" class="plate-anim" id="oceanic-plate"/>
-                                    
-                                    <!-- Continental Plate -->
-                                    <path d="M180,55 L400,55 L400,130 L200,130 Q185,120 180,80 Z" fill="#8B4513"/>
-                                    
-                                    <!-- Mountains -->
-                                    <polygon points="200,55 220,25 240,55" fill="#6B8E23"/>
-                                    <polygon points="230,55 255,15 280,55" fill="#556B2F"/>
-                                    <polygon points="260,55 285,30 310,55" fill="#6B8E23"/>
-                                    
-                                    <!-- Volcano -->
-                                    <polygon points="340,55 360,20 380,55" fill="#4a4a4a"/>
-                                    <ellipse cx="360" cy="20" rx="8" ry="5" fill="#ff4500" class="volcano-active"/>
-                                    <path d="M358,25 Q355,35 352,45 M362,25 Q365,35 368,45" stroke="#ff4500" stroke-width="2" fill="none" opacity="0.7"/>
-                                    
-                                    <!-- Magma Chamber -->
-                                    <ellipse cx="350" cy="110" rx="30" ry="20" fill="url(#magmaGrad)" opacity="0.8"/>
-                                    
-                                    <!-- Arrows showing movement -->
-                                    <path class="arrow" d="M50,100 L130,100"/>
-                                    <path class="arrow" d="M350,100 L270,100"/>
-                                    
-                                    <!-- Labels -->
-                                    <text x="60" y="70" class="label-text">Oceano</text>
-                                    <text x="300" y="45" class="label-text">Continente</text>
-                                    <text x="80" y="120" class="subtext">Placa Oceânica</text>
-                                    <text x="300" y="120" class="subtext">Placa Continental</text>
-                                    <text x="200" y="180" class="subtext">Zona de Subducção</text>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="info-container">
-                            <h3>Limites Convergentes</h3>
-                            <p>Ocorrem quando duas placas tectónicas se movem uma em direção à outra. O tipo de colisão depende do tipo de placas envolvidas.</p>
-                            
-                            <ul class="effects-list">
-                                <li><span class="icon">🏔️</span><div><strong>Cadeias Montanhosas</strong><br>Himalaias, Alpes, Andes</div></li>
-                                <li><span class="icon">🌋</span><div><strong>Vulcões</strong><br>Arco vulcânico sobre zona de subducção</div></li>
-                                <li><span class="icon">💥</span><div><strong>Sismos Violentos</strong><br>Os mais intensos do planeta</div></li>
-                                <li><span class="icon">🌊</span><div><strong>Fossas Oceânicas</strong><br>As partes mais profundas dos oceanos</div></li>
-                            </ul>
-                            
-                            <div class="examples-box">
-                                <h4>📍 Exemplos no Mundo</h4>
-                                <span class="example-tag">Himalaias 🏔️</span>
-                                <span class="example-tag">Fossa das Marianas</span>
-                                <span class="example-tag">Andes</span>
-                                <span class="example-tag">Japão</span>
-                                <span class="example-tag">Indonésia</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="effect-content">
+                    <span class="effect-type divergent">Divergente</span>
+                    <h3 class="effect-name">Riftes Continentais</h3>
+                    <p class="effect-description">Quando um continente se divide, forma-se um vale de rifte que pode tornar-se um novo oceano.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Vale do Rifte (África), Mar Vermelho</p>
                 </div>
-                
-                <!-- Divergent Tab -->
-                <div class="tab-content" id="tab-divergent">
-                    <div class="content-grid">
-                        <div class="diagram-container">
-                            <h3>Diagrama Interativo</h3>
-                            <div class="interactive-diagram">
-                                <svg class="diagram-svg" viewBox="0 0 400 250">
-                                    <defs>
-                                        <linearGradient id="magmaGrad2" x1="0%" y1="100%" x2="0%" y2="0%">
-                                            <stop offset="0%" style="stop-color:#ff4500"/>
-                                            <stop offset="100%" style="stop-color:#ff6347"/>
-                                        </linearGradient>
-                                    </defs>
-                                    
-                                    <!-- Ocean Water -->
-                                    <rect x="0" y="0" width="400" height="100" fill="#1b4965"/>
-                                    
-                                    <!-- Mantle -->
-                                    <rect x="0" y="160" width="400" height="90" fill="url(#mantleGrad)"/>
-                                    
-                                    <!-- Left Plate -->
-                                    <rect x="0" y="100" width="170" height="60" fill="#5a5a5a"/>
-                                    
-                                    <!-- Right Plate -->
-                                    <rect x="230" y="100" width="170" height="60" fill="#5a5a5a"/>
-                                    
-                                    <!-- Central Rift Valley -->
-                                    <path d="M170,100 L180,160 L220,160 L230,100 Z" fill="url(#magmaGrad2)"/>
-                                    
-                                    <!-- Rising Magma -->
-                                    <path d="M195,200 Q200,170 200,140 Q200,110 200,90" stroke="#ff4500" stroke-width="20" fill="none" opacity="0.6"/>
-                                    <ellipse cx="200" cy="90" rx="25" ry="10" fill="#ff4500" opacity="0.8"/>
-                                    
-                                    <!-- Mid-Ocean Ridge -->
-                                    <path d="M170,100 Q200,70 230,100" fill="#6a6a6a"/>
-                                    
-                                    <!-- New Crust forming -->
-                                    <rect x="185" y="100" width="30" height="60" fill="#3a3a3a" opacity="0.8"/>
-                                    
-                                    <!-- Arrows showing spreading -->
-                                    <path class="arrow" d="M150,130 L80,130"/>
-                                    <path class="arrow" d="M250,130 L320,130"/>
-                                    
-                                    <!-- Convection arrows in mantle -->
-                                    <path d="M100,200 Q100,175 150,175 Q175,175 175,155" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
-                                    <path d="M300,200 Q300,175 250,175 Q225,175 225,155" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
-                                    
-                                    <!-- Labels -->
-                                    <text x="200" y="50" class="label-text" text-anchor="middle">Oceano</text>
-                                    <text x="85" y="135" class="subtext">Placa A</text>
-                                    <text x="305" y="135" class="subtext">Placa B</text>
-                                    <text x="200" y="85" class="subtext" text-anchor="middle">Dorsal</text>
-                                    <text x="200" y="225" class="subtext" text-anchor="middle">Magma Ascendente</text>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="info-container">
-                            <h3>Limites Divergentes</h3>
-                            <p>Ocorrem quando duas placas tectónicas se afastam uma da outra. Magma sobe do manto para preencher o espaço, criando nova crosta.</p>
-                            
-                            <ul class="effects-list">
-                                <li><span class="icon">🌊</span><div><strong>Dorsais Oceânicas</strong><br>Cadeias montanhosas submarinas</div></li>
-                                <li><span class="icon">🔥</span><div><strong>Vulcanismo</strong><br>Erupções ao longo da fenda</div></li>
-                                <li><span class="icon">🆕</span><div><strong>Nova Crosta</strong><br>Formação de fundo oceânico</div></li>
-                                <li><span class="icon">⬇️</span><div><strong>Vales de Rifte</strong><br>Grandes depressões em continentes</div></li>
-                            </ul>
-                            
-                            <div class="examples-box">
-                                <h4>📍 Exemplos no Mundo</h4>
-                                <span class="example-tag">Dorsal Meso-Atlântica</span>
-                                <span class="example-tag">Rifte do Leste Africano</span>
-                                <span class="example-tag">Islândia 🇮🇸</span>
-                                <span class="example-tag">Mar Vermelho</span>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+
+            <!-- Convergent - Ocean-Continent -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #1b4965 35%, #8B4513 55%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="85" width="300" height="75" fill="#CD853F"/>
+                        <rect x="0" y="0" width="170" height="60" fill="#1b4965"/>
+                        <rect x="170" y="0" width="130" height="45" fill="#87CEEB"/>
+                        <g class="plate-converge-left">
+                            <rect x="0" y="60" width="150" height="18" fill="#3a5a73"/>
+                            <path d="M150,60 Q170,78 170,110" fill="none" stroke="#3a5a73" stroke-width="18"/>
+                        </g>
+                        <g>
+                            <path d="M150,38 L210,25 L255,32 L290,28 L300,45 L300,78 L150,78 Z" fill="#2d5a35"/>
+                            <rect x="150" y="60" width="150" height="25" fill="#6B4423"/>
+                        </g>
+                        <polygon points="210,25 225,-5 240,25" fill="#8B0000"/>
+                        <ellipse cx="225" cy="-12" rx="6" ry="4" fill="#888" opacity="0.6" class="magma-bubble"/>
+                        <path d="M140,60 Q152,90 165,60" fill="#0a2840"/>
+                        <path d="M55,68 L115,68" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                    </svg>
                 </div>
-                
-                <!-- Transform Tab -->
-                <div class="tab-content" id="tab-transform">
-                    <div class="content-grid">
-                        <div class="diagram-container">
-                            <h3>Diagrama Interativo</h3>
-                            <div class="interactive-diagram">
-                                <svg class="diagram-svg" viewBox="0 0 400 250">
-                                    <!-- Background -->
-                                    <rect x="0" y="0" width="400" height="250" fill="#2d5a35"/>
-                                    
-                                    <!-- Left Plate -->
-                                    <rect x="0" y="0" width="195" height="250" fill="#3d6b4f"/>
-                                    
-                                    <!-- Right Plate -->
-                                    <rect x="205" y="0" width="195" height="250" fill="#4a7c59"/>
-                                    
-                                    <!-- Fault Line -->
-                                    <rect x="195" y="0" width="10" height="250" fill="#1a1a1a"/>
-                                    <line x1="200" y1="0" x2="200" y2="250" stroke="#ffd60a" stroke-width="3" stroke-dasharray="10,5"/>
-                                    
-                                    <!-- Offset features showing movement -->
-                                    <rect x="100" y="80" width="95" height="8" fill="#666"/>
-                                    <rect x="205" y="120" width="95" height="8" fill="#666"/>
-                                    
-                                    <!-- Rivers offset -->
-                                    <path d="M50,60 Q100,70 190,75" stroke="#1b4965" stroke-width="4" fill="none"/>
-                                    <path d="M210,115 Q280,120 350,110" stroke="#1b4965" stroke-width="4" fill="none"/>
-                                    
-                                    <!-- Movement arrows -->
-                                    <path class="arrow" d="M100,200 L100,150"/>
-                                    <path class="arrow" d="M300,50 L300,100"/>
-                                    
-                                    <!-- Earthquake symbols -->
-                                    <circle cx="200" cy="80" r="12" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.8">
-                                        <animate attributeName="r" values="8;20;8" dur="1.5s" repeatCount="indefinite"/>
-                                        <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="200" cy="170" r="12" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.8">
-                                        <animate attributeName="r" values="8;20;8" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-                                        <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-                                    </circle>
-                                    
-                                    <!-- Labels -->
-                                    <text x="100" y="30" class="label-text">Placa A</text>
-                                    <text x="300" y="30" class="label-text">Placa B</text>
-                                    <text x="200" y="240" class="subtext" text-anchor="middle">Falha Transformante</text>
-                                    <text x="130" y="95" class="subtext">Estrada</text>
-                                    <text x="270" y="135" class="subtext">deslocada</text>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="info-container">
-                            <h3>Limites Transformantes</h3>
-                            <p>Ocorrem quando duas placas deslizam horizontalmente uma pela outra. Não há criação nem destruição de crosta, mas há grande fricção.</p>
-                            
-                            <ul class="effects-list">
-                                <li><span class="icon">💥</span><div><strong>Sismos</strong><br>Terramotos frequentes e fortes</div></li>
-                                <li><span class="icon">↔️</span><div><strong>Deslocamento Lateral</strong><br>Estradas e rios deslocados</div></li>
-                                <li><span class="icon">⚡</span><div><strong>Acumulação de Tensão</strong><br>Libertação súbita de energia</div></li>
-                                <li><span class="icon">🚫</span><div><strong>Sem Vulcões</strong><br>Sem criação de magma</div></li>
-                            </ul>
-                            
-                            <div class="examples-box">
-                                <h4>📍 Exemplos no Mundo</h4>
-                                <span class="example-tag">Falha de San Andreas 🇺🇸</span>
-                                <span class="example-tag">Falha Alpina (NZ)</span>
-                                <span class="example-tag">Falha Norte-Anatólica</span>
-                                <span class="example-tag">Falha do Mar Morto</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="effect-content">
+                    <span class="effect-type convergent">Convergente</span>
+                    <h3 class="effect-name">Subducção Oceano-Continente</h3>
+                    <p class="effect-description">A placa oceânica, mais densa, mergulha sob a continental, criando fossas, vulcões e terramotos.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Andes, Fossa Peru-Chile</p>
+                </div>
+            </div>
+
+            <!-- Convergent - Continent-Continent -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 15%, #2d5a35 15%, #6B4423 40%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="60" width="300" height="100" fill="#CD853F"/>
+                        <rect x="0" y="0" width="300" height="22" fill="#87CEEB"/>
+                        <g class="plate-converge-left">
+                            <path d="M0,22 L95,22 L110,38 L0,38 Z" fill="#2d5a35"/>
+                            <rect x="0" y="38" width="110" height="28" fill="#6B4423"/>
+                        </g>
+                        <g class="plate-converge-right">
+                            <path d="M190,22 L300,22 L300,38 L190,38 Z" fill="#2d5a35"/>
+                            <rect x="190" y="38" width="110" height="28" fill="#6B4423"/>
+                        </g>
+                        <polygon points="95,38 125,-10 140,15 155,-5 170,20 200,38" fill="#4a7c59"/>
+                        <polygon points="105,38 130,5 145,25 160,0 185,38" fill="#5a9c69"/>
+                        <polygon points="125,38 150,-18 175,38" fill="#6aac79"/>
+                        <polygon points="145,-2 150,-18 155,-2" fill="#fff"/>
+                        <path d="M35,48 L85,48" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M265,48 L215,48" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type convergent">Convergente</span>
+                    <h3 class="effect-name">Colisão Continental</h3>
+                    <p class="effect-description">Dois continentes colidem, a crosta é comprimida e empurrada para cima, formando montanhas enormes.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Himalaias, Alpes</p>
+                </div>
+            </div>
+
+            <!-- Convergent - Ocean-Ocean -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 45%, #8B4513 45%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="72" width="300" height="88" fill="#CD853F"/>
+                        <rect x="0" y="0" width="300" height="72" fill="#1b4965"/>
+                        <g class="plate-converge-left">
+                            <rect x="0" y="52" width="125" height="15" fill="#3a5a73"/>
+                            <path d="M125,52 Q148,68 148,100" fill="none" stroke="#3a5a73" stroke-width="15"/>
+                        </g>
+                        <rect x="140" y="52" width="160" height="15" fill="#4a6a83"/>
+                        <polygon points="175,52 185,32 195,52" fill="#5a4a3a"/>
+                        <polygon points="210,52 225,22 240,52" fill="#6a5a4a"/>
+                        <polygon points="250,52 260,38 270,52" fill="#5a4a3a"/>
+                        <circle cx="185" cy="28" r="4" fill="#888" opacity="0.5" class="magma-bubble"/>
+                        <circle cx="225" cy="18" r="5" fill="#888" opacity="0.5" class="magma-bubble" style="animation-delay: 0.3s"/>
+                        <path d="M120,52 Q135,78 150,52" fill="#0a1828"/>
+                        <path d="M45,60 L100,60" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type convergent">Convergente</span>
+                    <h3 class="effect-name">Subducção Oceano-Oceano</h3>
+                    <p class="effect-description">Uma placa oceânica mergulha sob outra, criando um arco de ilhas vulcânicas paralelo à fossa.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Japão, Filipinas, Marianas</p>
+                </div>
+            </div>
+
+            <!-- Transform -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 25%, #2d5a35 25%, #6B4423 50%, #CD853F 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="40" width="300" height="120" fill="#CD853F"/>
+                        <rect x="0" y="0" width="300" height="40" fill="#87CEEB"/>
+                        <g class="earthquake-zone">
+                            <path d="M0,22 L300,22 L300,40 L0,40 Z" fill="#2d5a35"/>
+                            <rect x="0" y="40" width="300" height="28" fill="#6B4423"/>
+                        </g>
+                        <line x1="0" y1="68" x2="300" y2="68" stroke="#ffd60a" stroke-width="3" stroke-dasharray="8,4"/>
+                        <circle cx="150" cy="68" r="15" fill="none" stroke="#ffd60a" stroke-width="2" opacity="0.5">
+                            <animate attributeName="r" from="8" to="40" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" from="0.8" to="0" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <path d="M55,52 L115,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <path d="M245,85 L185,85" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <rect x="75" y="15" width="12" height="22" fill="#654" class="earthquake-zone"/>
+                        <rect x="205" y="12" width="15" height="25" fill="#654" class="earthquake-zone" style="animation-delay: 0.2s;"/>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type transform">Transformante</span>
+                    <h3 class="effect-name">Falhas Transformantes</h3>
+                    <p class="effect-description">Placas deslizam horizontalmente, acumulando tensão que é libertada em terramotos frequentes.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Falha de Santo André (Califórnia)</p>
+                </div>
+            </div>
+
+            <!-- Hotspot -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 38%, #8B4513 38%, #FF4500 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <rect x="0" y="60" width="300" height="100" fill="#CD853F"/>
+                        <rect x="0" y="0" width="300" height="60" fill="#1b4965"/>
+                        <rect x="0" y="45" width="300" height="18" fill="#3a5a73"/>
+                        <path d="M25,62 L85,62" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
+                        <ellipse cx="200" cy="145" rx="25" ry="15" fill="#FF4500"/>
+                        <path d="M200,130 Q200,95 200,62" stroke="#FF6347" stroke-width="12" fill="none" opacity="0.7"/>
+                        <polygon points="65,45 75,28 85,45" fill="#4a3a2a"/>
+                        <polygon points="110,45 125,22 140,45" fill="#5a4a3a"/>
+                        <polygon points="160,45 180,12 200,45" fill="#6a5a4a"/>
+                        <polygon points="190,45 210,-2 230,45" fill="#8B0000"/>
+                        <circle cx="210" cy="-8" r="6" fill="#FF4500" class="magma-bubble"/>
+                        <text x="72" y="58" fill="#aaa" font-size="7">Antiga</text>
+                        <text x="200" y="58" fill="#fff" font-size="7">Ativa</text>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type" style="background: #FF4500;">Ponto Quente</span>
+                    <h3 class="effect-name">Vulcanismo de Ponto Quente</h3>
+                    <p class="effect-description">Magma fixo no manto perfura a placa em movimento, criando uma cadeia de vulcões.</p>
+                    <p class="effect-examples"><strong>Exemplos:</strong> Havai, Yellowstone</p>
+                </div>
+            </div>
+
+            <!-- Earthquakes -->
+            <div class="effect-card">
+                <div class="effect-visual" style="background: linear-gradient(135deg, #1a2a4a 0%, #2a3a5a 100%);">
+                    <svg class="diagram-svg" viewBox="0 0 300 160">
+                        <ellipse cx="150" cy="80" rx="130" ry="70" fill="none" stroke="#3a5a7a" stroke-width="1"/>
+                        <g fill="#e63946">
+                            <circle cx="38" cy="65" r="3"/>
+                            <circle cx="35" cy="80" r="3"/>
+                            <circle cx="38" cy="95" r="3"/>
+                            <circle cx="48" cy="110" r="3"/>
+                            <circle cx="262" cy="60" r="3"/>
+                            <circle cx="268" cy="78" r="3"/>
+                            <circle cx="270" cy="95" r="3"/>
+                            <circle cx="265" cy="112" r="3"/>
+                            <circle cx="252" cy="128" r="3"/>
+                        </g>
+                        <g fill="#ff6b35">
+                            <circle cx="108" cy="42" r="2.5"/>
+                            <circle cx="105" cy="65" r="2.5"/>
+                            <circle cx="102" cy="88" r="2.5"/>
+                            <circle cx="100" cy="112" r="2.5"/>
+                        </g>
+                        <g fill="#ffd60a">
+                            <circle cx="52" cy="78" r="2.5"/>
+                            <circle cx="195" cy="70" r="2.5"/>
+                        </g>
+                        <circle cx="265" cy="95" r="6" fill="none" stroke="#e63946" stroke-width="1">
+                            <animate attributeName="r" from="6" to="18" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" from="1" to="0" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="38" cy="148" r="3" fill="#e63946"/>
+                        <text x="48" y="152" fill="#fff" font-size="7">Convergente</text>
+                        <circle cx="115" cy="148" r="3" fill="#ff6b35"/>
+                        <text x="125" y="152" fill="#fff" font-size="7">Divergente</text>
+                        <circle cx="195" cy="148" r="3" fill="#ffd60a"/>
+                        <text x="205" y="152" fill="#fff" font-size="7">Transformante</text>
+                    </svg>
+                </div>
+                <div class="effect-content">
+                    <span class="effect-type" style="background: #666;">Geral</span>
+                    <h3 class="effect-name">Distribuição dos Terramotos</h3>
+                    <p class="effect-description">Os terramotos concentram-se nos limites das placas, especialmente no Anel de Fogo do Pacífico.</p>
+                    <p class="effect-examples"><strong>Zonas ativas:</strong> Anel de Fogo, Cintura Alpino-Himalaica</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let showLabels = true, showBoundaries = true, showPangaea = false, showFossils = false, animating = false;
+        let showLabels = true, showBoundaries = true, showPangaea = false, showFossils = false, animating = false, mobileMenuOpen = false;
         
         const pangaeaTransforms = {
-            northAmerica: { x: 85, y: 50, rotate: 30 },
-            southAmerica: { x: 155, y: -25, rotate: 48 },
+            northAmerica: { x: 70, y: 42, rotate: 25 },
+            southAmerica: { x: 140, y: -28, rotate: 45 },
             africa: { x: 0, y: 0, rotate: 0 },
-            europe: { x: 40, y: 30, rotate: -12 },
-            asia: { x: -20, y: 35, rotate: -8 },
-            india: { x: -125, y: 115, rotate: 42 },
-            seAsia: { x: -55, y: 45, rotate: 8 },
-            australia: { x: -215, y: 25, rotate: 38 },
-            antarctica: { x: -25, y: -35, rotate: 0 },
-            greenland: { x: 80, y: 50, rotate: 22 },
-            uk: { x: 60, y: 35, rotate: -8 },
-            japan: { x: -30, y: 40, rotate: 8 },
-            newzealand: { x: -205, y: -10, rotate: 28 },
-            madagascar: { x: -50, y: 25, rotate: 18 },
-            arabia: { x: -25, y: 35, rotate: 12 },
-            centralAmerica: { x: 115, y: 15, rotate: 32 },
-            caribbean: { x: 100, y: 8, rotate: 28 }
+            europe: { x: 38, y: 25, rotate: -10 },
+            asia: { x: -10, y: 30, rotate: -3 },
+            india: { x: -120, y: 110, rotate: 40 },
+            seAsia: { x: -50, y: 45, rotate: 10 },
+            australia: { x: -210, y: 22, rotate: 35 },
+            antarctica: { x: -22, y: -35, rotate: 0 },
+            greenland: { x: 68, y: 45, rotate: 20 },
+            uk: { x: 48, y: 28, rotate: -8 },
+            japan: { x: -20, y: 35, rotate: 6 },
+            newzealand: { x: -200, y: -10, rotate: 25 },
+            madagascar: { x: -48, y: 28, rotate: 20 },
+            arabia: { x: -25, y: 38, rotate: 15 },
+            centralAmerica: { x: 100, y: 10, rotate: 30 },
+            caribbean: { x: 88, y: 6, rotate: 25 }
         };
         
         function init() {
             document.getElementById('timeSlider').addEventListener('input', e => {
                 const val = parseInt(e.target.value);
-                document.getElementById('timeDisplay').textContent = val === 0 ? 'Atualidade' : `Há ${val} Milhões de Anos`;
+                document.getElementById('timeDisplay').textContent = val === 0 ? 'Dias de Hoje' : `Há ${val} M.a.`;
                 updatePositions(val / 200);
             });
+            
+            // Close menu when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (mobileMenuOpen && !e.target.closest('.control-panel') && !e.target.closest('.menu-toggle')) {
+                    toggleMobileMenu();
+                }
+            });
+        }
+        
+        function toggleMobileMenu() {
+            mobileMenuOpen = !mobileMenuOpen;
+            document.getElementById('controlPanel').classList.toggle('mobile-open', mobileMenuOpen);
+            document.getElementById('overlay').classList.toggle('active', mobileMenuOpen);
+            document.getElementById('menuToggle').classList.toggle('open', mobileMenuOpen);
+            document.getElementById('menuIcon').textContent = mobileMenuOpen ? '✕' : '☰';
         }
         
         function toggleLabels() {
@@ -946,11 +1183,11 @@
             const slider = document.getElementById('timeSlider');
             if (showPangaea) {
                 slider.value = 200;
-                document.getElementById('timeDisplay').textContent = 'Há 200 Milhões de Anos';
+                document.getElementById('timeDisplay').textContent = 'Há 200 M.a.';
                 updatePositions(1);
             } else {
                 slider.value = 0;
-                document.getElementById('timeDisplay').textContent = 'Atualidade';
+                document.getElementById('timeDisplay').textContent = 'Dias de Hoje';
                 updatePositions(0);
             }
         }
@@ -970,9 +1207,11 @@
                     const x = t.x * progress;
                     const y = t.y * progress;
                     const r = t.rotate * progress;
+                    
                     const bbox = el.getBBox();
                     const cx = bbox.x + bbox.width / 2;
                     const cy = bbox.y + bbox.height / 2;
+                    
                     el.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
                     el.style.transformOrigin = `${cx}px ${cy}px`;
                 }
@@ -982,6 +1221,7 @@
         function animateDrift() {
             if (animating) return;
             animating = true;
+            
             const btn = document.getElementById('animateBtn');
             const slider = document.getElementById('timeSlider');
             btn.disabled = true;
@@ -991,49 +1231,37 @@
             slider.value = val;
             
             const interval = setInterval(() => {
-                val -= 1;
+                val -= 2;
                 if (val < 0) val = 0;
                 slider.value = val;
-                document.getElementById('timeDisplay').textContent = val === 0 ? 'Atualidade' : `Há ${val} Milhões de Anos`;
+                document.getElementById('timeDisplay').textContent = val === 0 ? 'Dias de Hoje' : `Há ${val} M.a.`;
                 updatePositions(val / 200);
                 
                 if (val <= 0) {
                     clearInterval(interval);
                     animating = false;
                     btn.disabled = false;
-                    btn.textContent = '▶ Animar Deriva Continental';
+                    btn.textContent = '▶ Animar Deriva';
                 }
-            }, 30);
+            }, 25);
         }
         
-        // Modal Functions
-        function openModal() {
-            document.getElementById('modal').classList.add('active');
+        function showEffectsPage() {
+            if (mobileMenuOpen) toggleMobileMenu();
+            document.getElementById('mapView').classList.add('hidden');
+            document.getElementById('controlPanel').style.display = 'none';
+            document.getElementById('menuToggle').style.display = 'none';
+            document.getElementById('effectsPage').classList.add('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function hideEffectsPage() {
+            document.getElementById('mapView').classList.remove('hidden');
+            document.getElementById('controlPanel').style.display = '';
+            document.getElementById('menuToggle').style.display = '';
+            document.getElementById('effectsPage').classList.remove('active');
             document.body.style.overflow = 'hidden';
         }
-        
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            document.querySelector(`.tab-btn.${tabName}`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-        }
-        
-        // Close modal on escape key
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeModal();
-        });
-        
-        // Close modal on overlay click
-        document.getElementById('modal').addEventListener('click', e => {
-            if (e.target.id === 'modal') closeModal();
-        });
         
         document.addEventListener('DOMContentLoaded', init);
     </script>
