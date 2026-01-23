@@ -1,4 +1,5 @@
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -9,207 +10,6 @@
           .plateBoundaries {
          
         }
-        <style>
-     /* Effects Page Styles */
-        .effects-page {
-            display: none;
-            min-height: 100vh;
-            min-height: 100dvh;
-            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
-            padding: 15px;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            color: white;
-            overflow-y: auto;
-        }
-        
-        .effects-page.active { display: block; }
-        
-        .effects-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 0 20px 0;
-            max-width: 1400px;
-            margin: 0 auto;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 16px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-        }
-        
-        .back-btn:active {
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .effects-title {
-            font-size: 20px;
-            font-weight: 700;
-            text-align: center;
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .effects-grid {
-            display: grid;
-    grid-template-columns: 1fr;  /* Forces single column */
-    gap: 16px;
-    max-width: 500px;  /* You can increase this for wider cards */
-    margin: 0 auto;
-        }
-        
-        .effect-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        
-        @media (hover: hover) {
-            .effect-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-                border-color: rgba(255,255,255,0.2);
-            }
-        }
-        
-        .effect-visual {
-            height: 160px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .diagram-svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .effect-content {
-            padding: 16px;
-        }
-        
-        .effect-type {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-        
-        .effect-type.convergent { background: #e63946; }
-        .effect-type.divergent { background: #ff6b35; }
-        .effect-type.transform { background: #ffd60a; color: #000; }
-        
-        .effect-name {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .effect-description {
-            font-size: 12px;
-            color: #b0c4d4;
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-        
-        .effect-examples {
-            font-size: 11px;
-            color: #8fa8bc;
-        }
-        
-        .effect-examples strong {
-            color: #22c55e;
-        }
-
-        @media (max-width: 480px) {
-            .effects-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .effects-title {
-                font-size: 18px;
-                order: -1;
-                margin-bottom: 10px;
-            }
-            
-            .back-btn {
-                align-self: flex-start;
-            }
-            
-            .effect-visual {
-                height: 140px;
-            }
-            
-            .effect-name {
-                font-size: 15px;
-            }
-            
-            .effect-description {
-                font-size: 11px;
-            }
-        }
-
-        /* Animations */
-        @keyframes diverge {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(-12px); }
-        }
-        
-        @keyframes diverge-right {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(12px); }
-        }
-        
-        @keyframes converge {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(8px); }
-        }
-        
-        @keyframes converge-right {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(-8px); }
-        }
-        
-        @keyframes magma-rise {
-            0% { transform: translateY(15px); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-25px); opacity: 0; }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            75% { transform: translateX(2px); }
-        }
-
-        .plate-left { animation: diverge 3s ease-in-out infinite; }
-        .plate-right { animation: diverge-right 3s ease-in-out infinite; }
-        .plate-converge-left { animation: converge 3s ease-in-out infinite; }
-        .plate-converge-right { animation: converge-right 3s ease-in-out infinite; }
-        .magma-bubble { animation: magma-rise 2s ease-in-out infinite; }
-        .earthquake-zone { animation: shake 0.5s ease-in-out infinite; }
-
-    
         .plate-boundaries path {
             fill: none;
             stroke-width: 2;
@@ -446,17 +246,9 @@
             color: #ffd60a;
         }
 
-
         .tab-btn.transform.active {
             background: #ffd60a;
             color: #000;
-        }
-        .tab-btn.effects {
-            background: rgba(107, 237, 255, 0.2);
-            border-color: #6bedff;
-        }
-   .tab-btn.effects.active {
-            background: #6bedff;
         }
 
         .tab-btn.fossils {
@@ -792,7 +584,9 @@
         }
 
         .meme-grid {
-            
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
 
         @media (min-width: 600px) {
@@ -1144,7 +938,122 @@
             color: #8338ec;
         }
 
+        .effects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
+        .effect-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        @media (hover: hover) {
+            .effect-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        .effect-visual {
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagram-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .effect-content {
+            padding: 16px;
+        }
+
+        .effect-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .effect-type.convergent {
+            background: #e63946;
+        }
+
+        .effect-type.divergent {
+            background: #ff6b35;
+        }
+
+        .effect-type.transform {
+            background: #ffd60a;
+            color: #000;
+        }
+
+        .effect-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .effect-description {
+            font-size: 12px;
+            color: #b0c4d4;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .effect-examples {
+            font-size: 11px;
+            color: #8fa8bc;
+        }
+
+        .effect-examples strong {
+            color: #22c55e;
+        }
+
+        @media (max-width: 480px) {
+            .effects-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .effects-title {
+                font-size: 18px;
+                order: -1;
+                margin-bottom: 10px;
+            }
+
+            .back-btn {
+                align-self: flex-start;
+            }
+
+            .effect-visual {
+                height: 140px;
+            }
+
+            .effect-name {
+                font-size: 15px;
+            }
+
+            .effect-description {
+                font-size: 11px;
+            }
+        }
 
         .section-label {
             font-size: 11px;
@@ -1562,95 +1471,6 @@
             border-radius: 10px;
             text-align: center;
         }
-         .avatar-picker {
-            margin: 20px 0;
-        }
-
-        .avatar-picker-label {
-            color: #b8c5d6;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .avatar-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .avatar-option {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            transition: all 0.3s;
-        }
-
-        .avatar-option:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .avatar-option.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.3);
-            transform: scale(1.15);
-        }
-
-        /* Review avatar display */
-        .review-avatar {
-            font-size: 2rem;
-            margin-right: 10px;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .review-user {
-            display: flex;
-            align-items: center;
-        }
-
-        .review-name {
-            font-weight: bold;
-            color: #00d2ff;
-        }
-
-        .review-name.anonymous {
-            color: #8b5cf6;
-            font-style: italic;
-        }
-
-        .review-avatar {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 36px;
-            font-size: 1.5rem;
-        }
-
-        /* Earth SVG */
-        .earth {
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-        }
-
-        .earth svg {
-            max-width: 300px;
-            height: auto;
-        }
 
         .project-badge p {
             margin: 4px 0 0;
@@ -1667,6 +1487,7 @@
             display: none;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .modal-overlay.active {
@@ -2025,9 +1846,8 @@
                             <button class="tab-btn convergent" onclick="showTab('convergent')">🔴 Convergente</button>
                             <button class="tab-btn divergent" onclick="showTab('divergent')">🟠 Divergente</button>
                             <button class="tab-btn transform" onclick="showTab('transform')">🟡 Transformante</button>
-                            <button class="tab-btn fossils" onclick="showTab('fossils')">🦴 Fósseis</button> <button class="tab-btn effects" onclick="showTab('effects')">🌋 Efeitos & Resumo</button>
+                            <button class="tab-btn fossils" onclick="showTab('fossils')">🦴 Fósseis</button>
                             <button class="tab-btn rating" onclick="showTab('rating')">⭐ Avaliar</button>
-                                               
                         </div>
 
                         <!-- Theory Tab -->
@@ -2414,261 +2234,6 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        
-
-
-                        <div class="tab-content" id="tab-effects">
-                            <div class="content-grid single">
-                                <div class="info-container">
-            <h3>🌋 Efeitos Tectónicos</h3>
-        </div>
-        
-        <div class="effects-grid">
-            <!-- Divergent - Ridge -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 45%, #8B4513 45%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="72" width="300" height="88" fill="#CD853F"/>
-                        <rect x="0" y="60" width="300" height="20" fill="#8B4513"/>
-                        <rect x="0" y="0" width="300" height="60" fill="#1b4965"/>
-                        <g class="plate-left"><rect x="0" y="60" width="140" height="20" fill="#6B4423"/></g>
-                        <g class="plate-right"><rect x="160" y="60" width="140" height="20" fill="#6B4423"/></g>
-                        <circle cx="150" cy="100" r="6" fill="#FF4500" class="magma-bubble"/>
-                        <circle cx="145" cy="90" r="4" fill="#FF6347" class="magma-bubble" style="animation-delay: 0.5s;"/>
-                        <circle cx="155" cy="85" r="3" fill="#FF6347" class="magma-bubble" style="animation-delay: 1s;"/>
-                        <polygon points="140,60 150,52 160,60" fill="#4a2c1a"/>
-                        <path d="M95,70 L55,70" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <path d="M205,70 L245,70" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type divergent">Divergente</span>
-                    <h3 class="effect-name">Dorsais Oceânicas</h3>
-                    <p class="effect-description">Quando placas se afastam, magma sobe e solidifica, criando nova crosta oceânica e cadeias montanhosas submarinas.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Dorsal Médio-Atlântica</p>
-                </div>
-            </div>
-
-            <!-- Divergent - Rift -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 25%, #8B4513 25%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="40" width="300" height="120" fill="#CD853F"/>
-                        <rect x="0" y="0" width="300" height="40" fill="#87CEEB"/>
-                        <g class="plate-left">
-                            <path d="M0,28 L125,28 L120,40 L0,40 Z" fill="#2d5a35"/>
-                            <rect x="0" y="40" width="120" height="28" fill="#6B4423"/>
-                        </g>
-                        <g class="plate-right">
-                            <path d="M180,28 L300,28 L300,40 L180,40 Z" fill="#2d5a35"/>
-                            <rect x="180" y="40" width="120" height="28" fill="#6B4423"/>
-                        </g>
-                        <polygon points="120,40 150,95 180,40" fill="#1b4965"/>
-                        <ellipse cx="150" cy="62" rx="12" ry="6" fill="#4a90a4"/>
-                        <circle cx="150" cy="120" r="10" fill="#FF4500" class="magma-bubble"/>
-                        <path d="M70,52 L30,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <path d="M230,52 L270,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type divergent">Divergente</span>
-                    <h3 class="effect-name">Riftes Continentais</h3>
-                    <p class="effect-description">Quando um continente se divide, forma-se um vale de rifte que pode tornar-se um novo oceano.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Vale do Rifte (África), Mar Vermelho</p>
-                </div>
-            </div>
-
-            <!-- Convergent - Ocean-Continent -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #1b4965 35%, #8B4513 55%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="85" width="300" height="75" fill="#CD853F"/>
-                        <rect x="0" y="0" width="170" height="60" fill="#1b4965"/>
-                        <rect x="170" y="0" width="130" height="45" fill="#87CEEB"/>
-                        <g class="plate-converge-left">
-                            <rect x="0" y="60" width="150" height="18" fill="#3a5a73"/>
-                            <path d="M150,60 Q170,78 170,110" fill="none" stroke="#3a5a73" stroke-width="18"/>
-                        </g>
-                        <g>
-                            <path d="M150,38 L210,25 L255,32 L290,28 L300,45 L300,78 L150,78 Z" fill="#2d5a35"/>
-                            <rect x="150" y="60" width="150" height="25" fill="#6B4423"/>
-                        </g>
-                        <polygon points="210,25 225,-5 240,25" fill="#8B0000"/>
-                        <ellipse cx="225" cy="-12" rx="6" ry="4" fill="#888" opacity="0.6" class="magma-bubble"/>
-                        <path d="M140,60 Q152,90 165,60" fill="#0a2840"/>
-                        <path d="M55,68 L115,68" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type convergent">Convergente</span>
-                    <h3 class="effect-name">Subducção Oceano-Continente</h3>
-                    <p class="effect-description">A placa oceânica, mais densa, mergulha sob a continental, criando fossas, vulcões e terramotos.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Andes, Fossa Peru-Chile</p>
-                </div>
-            </div>
-
-            <!-- Convergent - Continent-Continent -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 15%, #2d5a35 15%, #6B4423 40%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="60" width="300" height="100" fill="#CD853F"/>
-                        <rect x="0" y="0" width="300" height="22" fill="#87CEEB"/>
-                        <g class="plate-converge-left">
-                            <path d="M0,22 L95,22 L110,38 L0,38 Z" fill="#2d5a35"/>
-                            <rect x="0" y="38" width="110" height="28" fill="#6B4423"/>
-                        </g>
-                        <g class="plate-converge-right">
-                            <path d="M190,22 L300,22 L300,38 L190,38 Z" fill="#2d5a35"/>
-                            <rect x="190" y="38" width="110" height="28" fill="#6B4423"/>
-                        </g>
-                        <polygon points="95,38 125,-10 140,15 155,-5 170,20 200,38" fill="#4a7c59"/>
-                        <polygon points="105,38 130,5 145,25 160,0 185,38" fill="#5a9c69"/>
-                        <polygon points="125,38 150,-18 175,38" fill="#6aac79"/>
-                        <polygon points="145,-2 150,-18 155,-2" fill="#fff"/>
-                        <path d="M35,48 L85,48" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <path d="M265,48 L215,48" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type convergent">Convergente</span>
-                    <h3 class="effect-name">Colisão Continental</h3>
-                    <p class="effect-description">Dois continentes colidem, a crosta é comprimida e empurrada para cima, formando montanhas enormes.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Himalaias, Alpes</p>
-                </div>
-            </div>
-
-            <!-- Convergent - Ocean-Ocean -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 45%, #8B4513 45%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="72" width="300" height="88" fill="#CD853F"/>
-                        <rect x="0" y="0" width="300" height="72" fill="#1b4965"/>
-                        <g class="plate-converge-left">
-                            <rect x="0" y="52" width="125" height="15" fill="#3a5a73"/>
-                            <path d="M125,52 Q148,68 148,100" fill="none" stroke="#3a5a73" stroke-width="15"/>
-                        </g>
-                        <rect x="140" y="52" width="160" height="15" fill="#4a6a83"/>
-                        <polygon points="175,52 185,32 195,52" fill="#5a4a3a"/>
-                        <polygon points="210,52 225,22 240,52" fill="#6a5a4a"/>
-                        <polygon points="250,52 260,38 270,52" fill="#5a4a3a"/>
-                        <circle cx="185" cy="28" r="4" fill="#888" opacity="0.5" class="magma-bubble"/>
-                        <circle cx="225" cy="18" r="5" fill="#888" opacity="0.5" class="magma-bubble" style="animation-delay: 0.3s"/>
-                        <path d="M120,52 Q135,78 150,52" fill="#0a1828"/>
-                        <path d="M45,60 L100,60" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type convergent">Convergente</span>
-                    <h3 class="effect-name">Subducção Oceano-Oceano</h3>
-                    <p class="effect-description">Uma placa oceânica mergulha sob outra, criando um arco de ilhas vulcânicas paralelo à fossa.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Japão, Filipinas, Marianas</p>
-                </div>
-            </div>
-
-            <!-- Transform -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 25%, #2d5a35 25%, #6B4423 50%, #CD853F 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="40" width="300" height="120" fill="#CD853F"/>
-                        <rect x="0" y="0" width="300" height="40" fill="#87CEEB"/>
-                        <g class="earthquake-zone">
-                            <path d="M0,22 L300,22 L300,40 L0,40 Z" fill="#2d5a35"/>
-                            <rect x="0" y="40" width="300" height="28" fill="#6B4423"/>
-                        </g>
-                        <line x1="0" y1="68" x2="300" y2="68" stroke="#ffd60a" stroke-width="3" stroke-dasharray="8,4"/>
-                        <circle cx="150" cy="68" r="15" fill="none" stroke="#ffd60a" stroke-width="2" opacity="0.5">
-                            <animate attributeName="r" from="8" to="40" dur="2s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" from="0.8" to="0" dur="2s" repeatCount="indefinite"/>
-                        </circle>
-                        <path d="M55,52 L115,52" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <path d="M245,85 L185,85" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <rect x="75" y="15" width="12" height="22" fill="#654" class="earthquake-zone"/>
-                        <rect x="205" y="12" width="15" height="25" fill="#654" class="earthquake-zone" style="animation-delay: 0.2s;"/>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type transform">Transformante</span>
-                    <h3 class="effect-name">Falhas Transformantes</h3>
-                    <p class="effect-description">Placas deslizam horizontalmente, acumulando tensão que é libertada em terramotos frequentes.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Falha de Santo André (Califórnia)</p>
-                </div>
-            </div>
-
-            <!-- Hotspot -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(180deg, #1b4965 0%, #1b4965 38%, #8B4513 38%, #FF4500 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <rect x="0" y="60" width="300" height="100" fill="#CD853F"/>
-                        <rect x="0" y="0" width="300" height="60" fill="#1b4965"/>
-                        <rect x="0" y="45" width="300" height="18" fill="#3a5a73"/>
-                        <path d="M25,62 L85,62" stroke="#fff" stroke-width="2" fill="none" marker-end="url(#arrow1)"/>
-                        <ellipse cx="200" cy="145" rx="25" ry="15" fill="#FF4500"/>
-                        <path d="M200,130 Q200,95 200,62" stroke="#FF6347" stroke-width="12" fill="none" opacity="0.7"/>
-                        <polygon points="65,45 75,28 85,45" fill="#4a3a2a"/>
-                        <polygon points="110,45 125,22 140,45" fill="#5a4a3a"/>
-                        <polygon points="160,45 180,12 200,45" fill="#6a5a4a"/>
-                        <polygon points="190,45 210,-2 230,45" fill="#8B0000"/>
-                        <circle cx="210" cy="-8" r="6" fill="#FF4500" class="magma-bubble"/>
-                        <text x="72" y="58" fill="#aaa" font-size="7">Antiga</text>
-                        <text x="200" y="58" fill="#fff" font-size="7">Ativa</text>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type" style="background: #FF4500;">Ponto Quente</span>
-                    <h3 class="effect-name">Vulcanismo de Ponto Quente</h3>
-                    <p class="effect-description">Magma fixo no manto perfura a placa em movimento, criando uma cadeia de vulcões.</p>
-                    <p class="effect-examples"><strong>Exemplos:</strong> Havai, Yellowstone</p>
-                </div>
-            </div>
-
-            <!-- Earthquakes -->
-            <div class="effect-card">
-                <div class="effect-visual" style="background: linear-gradient(135deg, #1a2a4a 0%, #2a3a5a 100%);">
-                    <svg class="diagram-svg" viewBox="0 0 300 160">
-                        <ellipse cx="150" cy="80" rx="130" ry="70" fill="none" stroke="#3a5a7a" stroke-width="1"/>
-                        <g fill="#e63946">
-                            <circle cx="38" cy="65" r="3"/>
-                            <circle cx="35" cy="80" r="3"/>
-                            <circle cx="38" cy="95" r="3"/>
-                            <circle cx="48" cy="110" r="3"/>
-                            <circle cx="262" cy="60" r="3"/>
-                            <circle cx="268" cy="78" r="3"/>
-                            <circle cx="270" cy="95" r="3"/>
-                            <circle cx="265" cy="112" r="3"/>
-                            <circle cx="252" cy="128" r="3"/>
-                        </g>
-                        <g fill="#ff6b35">
-                            <circle cx="108" cy="42" r="2.5"/>
-                            <circle cx="105" cy="65" r="2.5"/>
-                            <circle cx="102" cy="88" r="2.5"/>
-                            <circle cx="100" cy="112" r="2.5"/>
-                        </g>
-                        <g fill="#ffd60a">
-                            <circle cx="52" cy="78" r="2.5"/>
-                            <circle cx="195" cy="70" r="2.5"/>
-                        </g>
-                        <circle cx="265" cy="95" r="6" fill="none" stroke="#e63946" stroke-width="1">
-                            <animate attributeName="r" from="6" to="18" dur="2s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" from="1" to="0" dur="2s" repeatCount="indefinite"/>
-                        </circle>
-                        <circle cx="38" cy="148" r="3" fill="#e63946"/>
-                        <text x="48" y="152" fill="#fff" font-size="7">Convergente</text>
-                        <circle cx="115" cy="148" r="3" fill="#ff6b35"/>
-                        <text x="125" y="152" fill="#fff" font-size="7">Divergente</text>
-                        <circle cx="195" cy="148" r="3" fill="#ffd60a"/>
-                        <text x="205" y="152" fill="#fff" font-size="7">Transformante</text>
-                    </svg>
-                </div>
-                <div class="effect-content">
-                    <span class="effect-type" style="background: #666;">Geral</span>
-                    <h3 class="effect-name">Distribuição dos Terramotos</h3>
-                    <p class="effect-description">Os terramotos concentram-se nos limites das placas, especialmente no Anel de Fogo do Pacífico.</p>
-                    <p class="effect-examples"><strong>Zonas ativas:</strong> Anel de Fogo, Cintura Alpino-Himalaica</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
                         <!-- Rating Tab -->
                         <div class="tab-content" id="tab-rating">
@@ -2677,23 +2242,67 @@
 
                                 <!-- Meme Comics Section -->
                                 <div class="meme-section">
-                                    <h3 style="color:#ff6bed; margin-bottom:15px;">🎭 Memes Geológicos⁽ᵖᵒʳ૧ᵘᵉ ᵉᵘ ⁿᵃᵒ ˢᵉⁱ ᵒ૧ᵘᵉ ᶜᵒˡᵒᶜᵃʳ⁾</h3>
+                                    <h4 style="color:#ff6bed; margin-bottom:15px;">🎭 Memes Geológicos (porque a geologia é fixe!)</h4>
 
                                     <div class="meme-grid">
-                               
-                                                                                   <div class="meme-card">
-                                          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpq3E0J9uKf6uz_WJXHo0lkh_wTCXymUJ05g&s" /> 
+                                        <div class="meme-card">
+                                            <div class="meme-comic">
+                                                <div class="comic-panel">
+                                                    <div class="comic-character">🌍</div>
+                                                    <div class="speech-bubble left">"Sinto-me tão dividido..."</div>
+                                                </div>
+                                                <div class="comic-panel">
+                                                    <div class="comic-character">🧑‍🔬</div>
+                                                    <div class="speech-bubble right">"É a Pangeia a separar-se. Tens 200 milhões de anos, supera!"</div>
+                                                </div>
+                                            </div>
+                                            <p class="meme-caption">Quando a Terra vai ao psicólogo 🛋️</p>
                                         </div>
 
                                         <div class="meme-card">
-                        
-                                               <img src="data:image/jpeg;base64,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" /> 
+                                            <div class="meme-comic">
+                                                <div class="comic-panel single">
+                                                    <div class="big-emoji">🌋💨</div>
+                                                    <div class="meme-text-overlay">
+                                                        <span class="top-text">NINGUÉM:</span>
+                                                        <span class="bottom-text">VULCÕES: "E se eu arruinasse o dia de toda a gente?"</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="meme-caption">Os vulcões são tipo aquele colega dramático 🎭</p>
                                         </div>
 
                                         <div class="meme-card">
-                                            <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRGadRULUN5AYQ5wLlSEiP_RlVB0jfnBmqVj1NX-dJH0lJBhoiA" /> 
+                                            <div class="meme-comic">
+                                                <div class="comic-panel">
+                                                    <div class="comic-character">🦕</div>
+                                                    <div class="speech-bubble left">"Que meteorito bonito!"</div>
+                                                </div>
+                                                <div class="comic-panel">
+                                                    <div class="comic-character">☄️💥</div>
+                                                    <div class="speech-bubble right">"Surpresa! Extinção!"</div>
+                                                </div>
+                                            </div>
+                                            <p class="meme-caption">Há 66 milhões de anos... 💀</p>
                                         </div>
 
+                                        <div class="meme-card">
+                                            <div class="meme-comic">
+                                                <div class="comic-panel single">
+                                                    <div class="comparison-meme">
+                                                        <div class="compare-item">
+                                                            <span class="emoji-big">😴</span>
+                                                            <span>Dormir 8h</span>
+                                                        </div>
+                                                        <div class="compare-vs">VS</div>
+                                                        <div class="compare-item">
+                                                            <span class="emoji-big">🤓</span>
+                                                            <span>Estudar placas às 3h da manhã</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="meme-caption">POV: Tu antes do teste 📚</p>
                                         </div>
                                     </div>
                                 </div>
@@ -2701,7 +2310,7 @@
                                 <!-- Rating System -->
                                 <div class="rating-box">
                                     <h4 style="color:white; margin-bottom:15px;">🗳️ Deixa a tua avaliação!</h4>
-  
+
                                     <div class="star-rating" id="starRating">
                                         <span class="star" data-value="1">⭐</span>
                                         <span class="star" data-value="2">⭐</span>
@@ -2710,25 +2319,6 @@
                                         <span class="star" data-value="5">⭐</span>
                                     </div>
                                     <p id="ratingText" class="rating-label">Clica nas estrelas para avaliar!</p>
-<!-- Avatar Picker -->
-                            <div class="avatar-picker">
-                                <label class="avatar-picker-label">🎭 Escolhe o teu avatar:</label>
-                                <div class="avatar-options" id="avatarOptions">
-                                    <div class="avatar-option selected" data-avatar="🦖" title="Dinossauro">🦖</div>
-                                    <div class="avatar-option" data-avatar="🌋" title="Vulcão">🌋</div>
-                                    <div class="avatar-option" data-avatar="🌍" title="Terra">🌍</div>
-                                    <div class="avatar-option" data-avatar="🦴" title="Fóssil">🦴</div>
-                                    <div class="avatar-option" data-avatar="🏔️" title="Montanha">🏔️</div>
-                                    <div class="avatar-option" data-avatar="🌊" title="Oceano">🌊</div>
-                                    <div class="avatar-option" data-avatar="💎" title="Cristal">💎</div>
-                                    <div class="avatar-option" data-avatar="🔥" title="Lava">🔥</div>
-                                    <div class="avatar-option" data-avatar="🧑‍🔬" title="Cientista">🧑‍🔬</div>
-                                    <div class="avatar-option" data-avatar="🦕" title="Braquiossauro">🦕</div>
-                                    <div class="avatar-option" data-avatar="☄️" title="Meteoro">☄️</div>
-                                    <div class="avatar-option" data-avatar="🗿" title="Rocha">🗿</div>
-                                </div>
-                            </div>
-                             <h6>Se voce não colocar um nome, ser anônimo voce não vai poder escolher sue avatar</h6>
 
                                     <div class="rating-input-group">
                                         <input type="text" id="raterName" placeholder="O teu nome (opcional)" class="rating-input">
@@ -2767,7 +2357,12 @@
 
             <!-- 4. LÓGICA JAVASCRIPT -->
             <script>
-              
+                /*
+      CONFIGURAÇÃO DA ANIMAÇÃO PANGEIA
+      cx, cy: Centro de rotação do continente (importante para não rodar fora do lugar)
+      tx, ty: Translação (movimento) em pixeis
+      r: Rotação em graus
+    */
                 const plates = {
                     // África roda ligeiramente e move-se um pouco
                     africaGroup: {
@@ -3021,41 +2616,18 @@
                 // Iniciar
                 document.addEventListener('DOMContentLoaded', init);
      
- // ==========================================
+             // ==========================================
         // RATING SYSTEM - FULLY FUNCTIONAL
         // ==========================================
         
         let currentRating = 0;
-        let currentAvatar = '🦖'; // Default avatar
         let ratings = [];
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             initStarRating();
-            initAvatarPicker();
             loadRatings();
         });
-
-        // Initialize Avatar Picker
-        function initAvatarPicker() {
-            const avatarOptions = document.querySelectorAll('.avatar-option');
-            
-            avatarOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove selected from all
-                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
-                    // Add selected to clicked
-                    this.classList.add('selected');
-                    // Update current avatar
-                    currentAvatar = this.dataset.avatar;
-                });
-            });
-        }
-
-        // Get avatar display (returns emoji)
-        function getAvatarDisplay(avatar) {
-            return avatar || '🦖';
-        }
 
         // Initialize Star Rating System
         function initStarRating() {
@@ -3115,17 +2687,12 @@
                 return;
             }
 
-            const nameInput = document.getElementById('raterName').value.trim();
-            const isAnonymous = !nameInput;
-            const name = isAnonymous ? 'Dinossauro Anónimo' : nameInput;
-            const avatar = isAnonymous ? '🦖' : currentAvatar; // Force dino for anonymous
+            const name = document.getElementById('raterName').value.trim() || 'Anónimo';
             const comment = document.getElementById('raterComment').value.trim();
 
             const newRating = {
                 id: Date.now(),
                 name: name,
-                avatar: avatar,
-                isAnonymous: isAnonymous,
                 rating: currentRating,
                 comment: comment,
                 date: new Date().toLocaleDateString('pt-PT')
@@ -3142,16 +2709,10 @@
 
             // Reset form
             currentRating = 0;
-            currentAvatar = '🦖';
             highlightStars(0);
             document.getElementById('raterName').value = '';
             document.getElementById('raterComment').value = '';
             document.getElementById('ratingText').textContent = 'Obrigado pela tua avaliação! 🎉';
-            
-            // Reset avatar selection to first one (🦖)
-            document.querySelectorAll('.avatar-option').forEach((opt, i) => {
-                opt.classList.toggle('selected', i === 0);
-            });
 
             // Show success message
             setTimeout(() => {
@@ -3198,29 +2759,20 @@
 
             // Generate reviews HTML
             if (ratings.length === 0) {
-                reviewsList.innerHTML = '<div class="no-reviews">Ainda não há avaliações. Seja o primeiro! 🌟</div>';
+                reviewsList.innerHTML = '<div class="no-reviews">Ainda não há avaliações. Sê o primeiro! 🌟</div>';
                 return;
             }
 
-            reviewsList.innerHTML = ratings.map(r => {
-                const avatar = r.avatar || '🦖'; // Fallback for old ratings
-                const avatarDisplay = getAvatarDisplay(avatar);
-                const nameClass = r.isAnonymous ? 'review-name anonymous' : 'review-name';
-                
-                return `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <div class="review-user">
-                                <span class="review-avatar">${avatarDisplay}</span>
-                                <span class="${nameClass}">${escapeHtml(r.name)}</span>
-                            </div>
-                            <span class="review-stars">${'⭐'.repeat(r.rating)}</span>
-                        </div>
-                        ${r.comment ? `<p class="review-comment">${escapeHtml(r.comment)}</p>` : ''}
-                        <p class="review-date">${r.date}</p>
+            reviewsList.innerHTML = ratings.map(r => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-name">${escapeHtml(r.name)}</span>
+                        <span class="review-stars">${'⭐'.repeat(r.rating)}</span>
                     </div>
-                `;
-            }).join('');
+                    ${r.comment ? `<p class="review-comment">${escapeHtml(r.comment)}</p>` : ''}
+                    <p class="review-date">${r.date}</p>
+                </div>
+            `).join('');
         }
 
         // Escape HTML to prevent XSS
@@ -3263,24 +2815,8 @@
         document.getElementById('modal').addEventListener('click', e => {
             if (e.target.id === 'modal') closeModal();
         });
-    
-        function showEffectsPage() {
-            if (mobileMenuOpen) toggleMobileMenu();
-            document.getElementById('mapView').classList.add('hidden');
-            document.getElementById('controlPanel').style.display = 'none';
-            document.getElementById('menuToggle').style.display = 'none';
-            document.getElementById('effectsPage').classList.add('active');
-            document.body.style.overflow = 'auto';
-        }
-        
-        function hideEffectsPage() {
-            document.getElementById('mapView').classList.remove('hidden');
-            document.getElementById('controlPanel').style.display = '';
-            document.getElementById('menuToggle').style.display = '';
-            document.getElementById('effectsPage').classList.remove('active');
-            document.body.style.overflow = 'hidden';
-        }
-
+           
            </script>
 </body>
+
 </html>
